@@ -18463,6 +18463,173 @@ function fixContrast(){
 })();
 
 
+/* ZAPPY_ACCESSIBILITY_RUNTIME_V2 — self-loads Mickidum after publish strips stored third-party tags */
+
+/* Mickidum Accessibility Toolbar Initialization - Zappy Style */
+
+var zappyAccessibilityInitAttempts = 0;
+var zappyAccessibilityMaxAttempts = 50;
+var zappyAccessibilityScriptSrc = 'https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js';
+var zappyAccessibilityLoadPromise = null;
+
+function loadZappyAccessibilityToolbar() {
+    if (typeof window.MicAccessTool === 'function') {
+        return Promise.resolve();
+    }
+    if (zappyAccessibilityLoadPromise) {
+        return zappyAccessibilityLoadPromise;
+    }
+    zappyAccessibilityLoadPromise = new Promise(function(resolve, reject) {
+        var existing = document.querySelector('script[data-zappy-accessibility-toolbar="true"]');
+        if (existing) {
+            // A previously failed/already-complete tag never fires load again.
+            if (existing.getAttribute('data-zappy-load-error') === 'true') {
+                existing.parentNode && existing.parentNode.removeChild(existing);
+            } else if (existing.getAttribute('data-zappy-loaded') === 'true' || existing.readyState === 'complete') {
+                resolve();
+                return;
+            } else {
+                existing.addEventListener('load', function() {
+                    existing.setAttribute('data-zappy-loaded', 'true');
+                    resolve();
+                }, { once: true });
+                existing.addEventListener('error', function(error) {
+                    existing.setAttribute('data-zappy-load-error', 'true');
+                    reject(error);
+                }, { once: true });
+                return;
+            }
+        }
+        var script = document.createElement('script');
+        script.src = zappyAccessibilityScriptSrc;
+        script.async = true;
+        script.defer = true;
+        script.setAttribute('data-zappy-accessibility-toolbar', 'true');
+        script.onload = function() {
+            script.setAttribute('data-zappy-loaded', 'true');
+            resolve();
+        };
+        script.onerror = function(error) {
+            script.setAttribute('data-zappy-load-error', 'true');
+            reject(error);
+        };
+        document.head.appendChild(script);
+    }).then(function() {
+        initZappyAccessibilityToolbar();
+    }).catch(function() {
+        zappyAccessibilityLoadPromise = null;
+    });
+    return zappyAccessibilityLoadPromise;
+}
+
+function initZappyAccessibilityToolbar() {
+
+    try {
+        if (window.__zappyAccessibilityInitialized) {
+            return;
+        }
+        if (typeof window.MicAccessTool !== 'function') {
+            zappyAccessibilityInitAttempts++;
+            if (zappyAccessibilityInitAttempts < zappyAccessibilityMaxAttempts) {
+                // Script load may already be settled; schedule another init pass
+                // so we keep polling until MicAccessTool attaches.
+                setTimeout(function() {
+                    loadZappyAccessibilityToolbar().then(initZappyAccessibilityToolbar);
+                }, 100);
+            }
+            return;
+        }
+        window.__zappyAccessibilityInitialized = true;
+        // Detect current page language and direction from <html> element
+        // so the toolbar matches the active language on multi-language sites.
+        var htmlEl = document.documentElement;
+        var pageLang = (htmlEl.getAttribute('lang') || 'en').toLowerCase().split('-')[0];
+        var pageDir = (htmlEl.getAttribute('dir') || '').toLowerCase();
+        var rtlLangs = ['he', 'ar', 'fa', 'ur', 'yi', 'iw'];
+        var isPageRTL = pageDir === 'rtl' || rtlLangs.indexOf(pageLang) !== -1;
+        var buttonSide = isPageRTL ? 'left' : 'right';
+
+        var langMap = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', it: 'it-IT', pt: 'pt-PT', nl: 'nl-NL', he: 'he-IL', ar: 'ar-SA' };
+        var forceLang = langMap[pageLang] || 'en-US';
+
+        var iconPos = { bottom: { size: 50, units: 'px' }, type: 'fixed' };
+        iconPos[buttonSide] = { size: 20, units: 'px' };
+
+        window.micAccessTool = new MicAccessTool({
+            buttonPosition: buttonSide,
+            forceLang: forceLang,
+            icon: {
+                position: iconPos,
+                backgroundColor: 'transparent',
+                color: 'transparent',
+                img: 'accessible',
+                circular: false
+            },
+            menu: {
+                dimensions: {
+                    width: { size: 300, units: 'px' },
+                    height: { size: 'auto', units: 'px' }
+                }
+            }
+        });
+        
+    } catch (error) {
+    }
+    
+    // Keyboard shortcut handler: ALT+A (Option+A on Mac) to toggle accessibility menu
+    if (!window.__zappyAccessibilityShortcutBound) {
+      window.__zappyAccessibilityShortcutBound = true;
+      document.addEventListener('keydown', function(event) {
+        var isAltOrOption = event.altKey;
+        var isAKey = event.code === 'KeyA' || event.keyCode === 65 || event.which === 65 || 
+                      (event.key && (event.key.toLowerCase() === 'a' || event.key === 'å' || event.key === 'Å'));
+        
+        if (isAltOrOption && isAKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            loadZappyAccessibilityToolbar().then(function() {
+                var accessButton = document.getElementById('mic-access-tool-general-button');
+                if (accessButton) {
+                    accessButton.click();
+                }
+            });
+        }
+      }, true);
+    }
+}
+
+function scheduleZappyAccessibilityLazyLoad() {
+    var start = function() { loadZappyAccessibilityToolbar(); };
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(start, { timeout: 8000 });
+    } else {
+        setTimeout(start, 8000);
+    }
+}
+
+if (!window.__zappyAccessibilityShortcutBound) {
+    window.__zappyAccessibilityShortcutBound = true;
+    document.addEventListener('keydown', function(event) {
+        var isAltOrOption = event.altKey;
+        var isAKey = event.code === 'KeyA' || event.keyCode === 65 || event.which === 65 ||
+                      (event.key && (event.key.toLowerCase() === 'a' || event.key === 'å' || event.key === 'Å'));
+        if (isAltOrOption && isAKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            loadZappyAccessibilityToolbar().then(function() {
+                var accessButton = document.getElementById('mic-access-tool-general-button');
+                if (accessButton) accessButton.click();
+            });
+        }
+    }, true);
+}
+
+if (document.readyState === 'complete') {
+    scheduleZappyAccessibilityLazyLoad();
+} else {
+    window.addEventListener('load', scheduleZappyAccessibilityLazyLoad, { once: true });
+}
+
 /* ZAPPY_MOBILE_NAV_ICON_ALIGNMENT_RUNTIME */
 /* ZAPPY_MOBILE_NAV_ICON_ALIGNMENT_RUNTIME_V2 */
 (function(){
