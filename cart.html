@@ -913,7 +913,31 @@ body:has(.zappy-announcement-bar) main > section[class*="hero"]:first-of-type {
     
 
 
-    
+    <style id="zppb-promo-banner-styles">
+    .zppb-overlay { display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.45); align-items: center; justify-content: center; }
+    .zppb-overlay.zppb-visible { display:flex; }
+    .zppb-banner { position:relative; overflow:hidden; text-align:center; padding:48px 36px; background:#1a1a2e; color:#ffffff; border-radius:16px; max-width:500px; width:92%; min-height:500px; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: zppbFadeIn 0.35s ease forwards; }
+    .zppb-bg-img { position:absolute; inset:0; background-size:cover; background-position:center; }
+    .zppb-content { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .zppb-close { position:absolute; top:14px; right:14px; z-index:2; background:rgba(0,0,0,0.3); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; }
+    .zppb-close:hover { background:rgba(0,0,0,0.5); }
+    .zppb-h { font-size:28px; font-weight:700; margin:0 0 10px; color:#ffffff !important; }
+    .zppb-sub { font-size:16px; opacity:0.85; margin:0 0 24px; max-width:380px; color:#ffffff !important; white-space:pre-line; }
+    .zppb-cta { display:inline-block; padding:14px 36px; border-radius:50px; font-size:16px; font-weight:600; text-decoration:none; cursor:pointer; border:none; background:#e94560; color:#ffffff; margin-top:8px; }
+    .zppb-cta:hover { opacity:0.9; }
+    .zppb-coupon { display:inline-block; margin-bottom:20px; padding:10px 24px; border:2px dashed #e94560; border-radius:10px; font-family:monospace; font-weight:700; font-size:18px; color:#e94560; letter-spacing:2px; }
+    .zppb-countdown { display:flex; gap:8px; justify-content:center; margin-bottom:24px; font-size:32px; font-weight:700; font-family:monospace; direction:ltr; }
+    .zppb-countdown span { background:#e94560; color:#ffffff; padding:8px 16px; border-radius:8px; }
+    .zppb-fields { display:flex; flex-direction:column; gap:10px; max-width:340px; width:100%; margin:0 auto 20px; }
+    .zppb-input { width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.15); color:#ffffff; font-size:15px; outline:none; box-sizing:border-box; }
+    .zppb-input::placeholder { color:#ffffff; opacity:0.5; }
+    .zppb-input:focus { border-color:#e94560; background:rgba(255,255,255,0.25); }
+    @keyframes zppbFadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes zppbSlideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes zppbScaleIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+    @media (max-width:480px) { .zppb-banner { padding:32px 20px; min-height:400px; } .zppb-h { font-size:22px; } .zppb-sub { font-size:14px; } .zppb-countdown { font-size:24px; } .zppb-countdown span { padding:6px 12px; } }
+    body.zappy-edit-mode .zppb-overlay { display:none !important; }
+    </style>
 
   <script>
     window.ZAPPY_WEBSITE_ID = "d2eb5635-5cf7-4f0c-ae03-f0772f98e263";

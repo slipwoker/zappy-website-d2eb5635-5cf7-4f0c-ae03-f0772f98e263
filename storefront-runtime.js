@@ -12724,6 +12724,12 @@ async function loadRelatedProducts(currentProduct, t) {
       if (imgA >= contA) return { w: (imgA / contA) * 100, h: 100 };
       return { w: 100, h: (contA / imgA) * 100 };
     }
+    function containPercents(imgA, contA) {
+      if (!isFinite(imgA) || imgA <= 0 || !isFinite(contA) || contA <= 0)
+        return { w: 100, h: 100 };
+      if (imgA >= contA) return { w: 100, h: (contA / imgA) * 100 };
+      return { w: (imgA / contA) * 100, h: 100 };
+    }
 
     var IMAGE_SLOT_CLASS_TOKENS = ['image-wrap', 'image-tile', 'image-slot', 'card-image', 'card-media', 'media-wrap', 'portrait-wrap'];
     function classNameHasImageSlotMarker(className) {
@@ -13225,11 +13231,15 @@ async function loadRelatedProducts(currentProduct, t) {
       var imgA = nW / nH;
       var contA = rect.width / rect.height;
       var cover = coverPercents(imgA, contA);
+      var contain = containPercents(imgA, contA);
 
       var wPct = 100, hPct = 100;
       if (zoom >= 1) {
         wPct = cover.w * zoom;
         hPct = cover.h * zoom;
+      } else if (zoom <= 0.5) {
+        wPct = contain.w;
+        hPct = contain.h;
       } else {
         var t = (zoom - 0.5) / 0.5;
         if (!isFinite(t)) t = 0;
