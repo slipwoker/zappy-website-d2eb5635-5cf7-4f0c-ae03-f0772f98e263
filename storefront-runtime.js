@@ -19300,9 +19300,9 @@ function fixContrast(){
     document.body.style.setProperty('padding-top', totalHeight + 'px', 'important');
 
     // Transparent nav: pull hero behind the fixed stack immediately.
-    // Measure the navbar itself rather than trusting --nav-bg, which is absent
-    // while deferred styles.css loads on a hard refresh. Critical CSS paints
-    // opaque navbar colors before this runtime executes.
+    // Measure the navbar itself rather than trusting --nav-bg, which can be
+    // absent on older published pages or during stylesheet failure. Critical
+    // CSS also paints known opaque navbar colors before this runtime executes.
     // Keep selectors aligned with ZAPPY_ANNOUNCEMENT_HEADER_OFFSET_CSS_V3 —
     // never underlap bare main>section:first-child (catalog /products pages).
     var heroEl = document.querySelector('section[data-hero-type^="fullscreen"], .index-hero-section, main > section[class*="hero"]:first-of-type');
