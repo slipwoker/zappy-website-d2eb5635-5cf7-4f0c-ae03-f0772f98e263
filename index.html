@@ -1,0 +1,2826 @@
+<!DOCTYPE html><html data-zappy-site-type="ecommerce" lang="he" dir="rtl"><head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <title>Street Stock - סטריט סטוק</title>
+    <meta name="description" content="Street Stock היא חנות הסטוק האונליין שלך לכל צרכי הבית — פועלים מאשקלון ומגיעים לכל הארץ. אנחנו מאמינים שכל בית ראוי לקבל מוצרים איכותיים במחיר שהגיוני, בלי פשרות ובלי סיבוכים." />
+    <meta name="keywords" content="wall street stocks, wall street stocks to buy, סטריט סטוק, סטוק אשקלון, סטוק זול באשקלון" />
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: 'd2eb5635-5cf7-4f0c-ae03-f0772f98e263',
+    apiUrl: 'https://qaapi.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Site Optimization Agent — visual heatmap helpers
+  function getBandAnchor(el) {
+    var node = el;
+    while (node && node !== document.body) {
+      if (node.getAttribute && node.getAttribute('data-band-index') != null) {
+        return { bandIndex: node.getAttribute('data-band-index'), sectionId: node.id || null };
+      }
+      node = node.parentElement;
+    }
+    node = el;
+    while (node && node !== document.body) {
+      if (node.tagName === 'SECTION' && node.id) {
+        return { bandIndex: null, sectionId: node.id };
+      }
+      node = node.parentElement;
+    }
+    return { bandIndex: null, sectionId: null };
+  }
+  function heatmapFields(el, e) {
+    var anchor = getBandAnchor(el);
+    return {
+      x: Math.round((e && e.pageX) || 0),
+      y: Math.round((e && e.pageY) || 0),
+      bandIndex: anchor.bandIndex,
+      sectionId: anchor.sectionId
+    };
+  }
+  function mergeFields(base, extra) {
+    for (var k in extra) { if (Object.prototype.hasOwnProperty.call(extra, k)) base[k] = extra[k]; }
+    return base;
+  }
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        var clickMeta = {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        };
+        mergeFields(clickMeta, heatmapFields(button, e));
+        trackEvent('click', clickMeta);
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        var navMeta = {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        };
+        mergeFields(navMeta, heatmapFields(link, e));
+        trackEvent('navigation', navMeta);
+      }
+    }, true);
+  }
+  
+  // Track scroll depth milestones (visual heatmap reach signal)
+  (function() {
+    var milestones = [25, 50, 75, 100];
+    var fired = {};
+    var maxDepth = 0;
+    function computeDepth() {
+      var doc = document.documentElement;
+      var scrollable = (doc.scrollHeight - window.innerHeight);
+      if (scrollable <= 0) return 100;
+      return Math.min(100, Math.round(((window.scrollY || window.pageYOffset || 0) / scrollable) * 100));
+    }
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function() {
+        var depth = computeDepth();
+        if (depth > maxDepth) maxDepth = depth;
+        for (var i = 0; i < milestones.length; i++) {
+          var m = milestones[i];
+          if (depth >= m && !fired[m]) {
+            fired[m] = true;
+            trackEvent('scroll_depth', { milestone: m, maxDepthPct: maxDepth });
+          }
+        }
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+<!-- Zappy Marketing Events -->
+<script>
+(function() {
+  'use strict';
+  if (window.zappyFireMarketingEvent) return;
+
+  var ECOM_MODE = "full";
+  var IS_CATALOG = false;
+  var IS_FULL = true;
+
+  var ECOM_ALIAS = {
+    begin_checkout: 'checkout_started',
+    purchase: 'checkout_complete',
+    add_to_cart: 'add_to_cart',
+    view_product: 'view_product'
+  };
+
+  function pagePath() {
+    try {
+      if (window.ZAPPY_CONFIG && window.ZAPPY_CONFIG.currentPagePath) {
+        return window.ZAPPY_CONFIG.currentPagePath;
+      }
+    } catch (e) {}
+    try { return window.location.pathname || '/'; } catch (e2) { return '/'; }
+  }
+
+  function normalizeItems(meta) {
+    meta = meta || {};
+    var raw = meta.items || meta.cartItems || meta.cart_items || meta.lineItems || [];
+    if (!Array.isArray(raw)) raw = [];
+    var out = [];
+    for (var i = 0; i < raw.length; i++) {
+      var item = raw[i];
+      if (!item || typeof item !== 'object') continue;
+      var id = String(item.item_id || item.productId || item.product_id || item.id || '').trim();
+      var name = String(item.item_name || item.productName || item.product_name || item.name || '').trim();
+      var price = parseFloat(item.price != null ? item.price : (item.unitPrice != null ? item.unitPrice : 0)) || 0;
+      var quantity = Math.max(1, parseInt(item.quantity != null ? item.quantity : (item.qty != null ? item.qty : 1), 10) || 1);
+      if (!id && !name) continue;
+      out.push({ item_id: id || name, item_name: name || id, price: price, quantity: quantity });
+    }
+    return out;
+  }
+
+  function buildGa4Params(eventId, meta) {
+    meta = meta || {};
+    var items = normalizeItems(meta);
+    var value = parseFloat(meta.value != null ? meta.value : (meta.total != null ? meta.total : 0)) || 0;
+    var currency = String(meta.currency || 'USD').toUpperCase();
+
+    if (eventId === 'checkout_complete') {
+      return {
+        transaction_id: String(meta.transaction_id || meta.orderId || meta.order_id || meta.orderNumber || '') || undefined,
+        value: value,
+        currency: currency,
+        items: items
+      };
+    }
+    if (eventId === 'checkout_started') {
+      return { value: value, currency: currency, items: items };
+    }
+    if (eventId === 'add_to_cart') {
+      var atcItems = items.length ? items : [{
+        item_id: String(meta.productId || meta.product_id || ''),
+        item_name: String(meta.productName || meta.product_name || ''),
+        price: parseFloat(meta.value != null ? meta.value : (meta.price != null ? meta.price : 0)) || 0,
+        quantity: parseInt(meta.quantity != null ? meta.quantity : 1, 10) || 1
+      }].filter(function(x) { return x.item_id || x.item_name; });
+      return {
+        value: value || (atcItems[0] ? atcItems[0].price * atcItems[0].quantity : 0),
+        currency: currency,
+        items: atcItems
+      };
+    }
+    if (eventId === 'view_product') {
+      var vpItems = items.length ? items : [{
+        item_id: String(meta.productId || meta.product_id || ''),
+        item_name: String(meta.productName || meta.product_name || ''),
+        price: parseFloat(meta.price != null ? meta.price : (meta.value != null ? meta.value : 0)) || 0,
+        quantity: 1
+      }].filter(function(x) { return x.item_id || x.item_name; });
+      return {
+        currency: currency,
+        value: value || (vpItems[0] ? vpItems[0].price : 0),
+        items: vpItems
+      };
+    }
+    if (eventId === 'whatsapp_click' || eventId === 'phone_click') {
+      return { method: eventId === 'whatsapp_click' ? 'whatsapp' : 'phone', page_path: meta.pagePath || pagePath() };
+    }
+    if (eventId === 'contact_form_submitted' || eventId === 'product_inquiry') {
+      return { page_path: meta.pagePath || pagePath() };
+    }
+    return meta;
+  }
+
+  function buildMetaParams(eventId, meta) {
+    meta = meta || {};
+    var items = normalizeItems(meta);
+    var value = parseFloat(meta.value != null ? meta.value : (meta.total != null ? meta.total : 0)) || 0;
+    var currency = String(meta.currency || 'USD').toUpperCase();
+    var contentIds = [];
+    var numItems = 0;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].item_id) contentIds.push(items[i].item_id);
+      numItems += items[i].quantity || 1;
+    }
+
+    if (eventId === 'checkout_complete') {
+      return {
+        value: value,
+        currency: currency,
+        content_ids: contentIds.length ? contentIds : undefined,
+        content_type: 'product',
+        num_items: numItems || undefined,
+        order_id: String(meta.order_id || meta.orderId || meta.transaction_id || meta.orderNumber || '') || undefined
+      };
+    }
+    if (eventId === 'checkout_started') {
+      return {
+        value: value,
+        currency: currency,
+        content_ids: contentIds.length ? contentIds : undefined,
+        content_type: 'product',
+        num_items: numItems || parseInt(meta.itemCount != null ? meta.itemCount : 0, 10) || undefined
+      };
+    }
+    if (eventId === 'add_to_cart') {
+      var id = String(meta.productId || meta.product_id || contentIds[0] || '');
+      return {
+        value: value || (items[0] ? items[0].price * items[0].quantity : 0),
+        currency: currency,
+        content_ids: id ? [id] : (contentIds.length ? contentIds : undefined),
+        content_type: 'product',
+        content_name: meta.productName || meta.product_name || (items[0] && items[0].item_name),
+        num_items: parseInt(meta.quantity != null ? meta.quantity : (numItems || 1), 10) || 1
+      };
+    }
+    if (eventId === 'view_product') {
+      var vid = String(meta.productId || meta.product_id || contentIds[0] || '');
+      return {
+        value: value || parseFloat(meta.price != null ? meta.price : 0) || 0,
+        currency: currency,
+        content_ids: vid ? [vid] : (contentIds.length ? contentIds : undefined),
+        content_type: 'product',
+        content_name: meta.productName || meta.product_name || (items[0] && items[0].item_name)
+      };
+    }
+    if (eventId === 'whatsapp_click' || eventId === 'phone_click') {
+      return {
+        content_name: eventId === 'whatsapp_click' ? 'WhatsApp' : 'Phone',
+        content_category: 'contact'
+      };
+    }
+    if (eventId === 'contact_form_submitted' || eventId === 'product_inquiry') {
+      return {
+        content_name: eventId === 'product_inquiry' ? 'Product inquiry' : 'Contact form',
+        content_category: meta.productName || meta.product_name || undefined
+      };
+    }
+    return meta;
+  }
+
+  var PLATFORM = {
+    whatsapp_click: { ga4: 'contact', meta: 'Contact', gtm: 'whatsapp_click', ecom: false },
+    phone_click: { ga4: 'contact', meta: 'Contact', gtm: 'phone_click', ecom: false },
+    contact_form_submitted: { ga4: 'generate_lead', meta: 'Lead', gtm: 'contact_form_submitted', ecom: false },
+    checkout_started: { ga4: 'begin_checkout', meta: 'InitiateCheckout', gtm: 'begin_checkout', ecom: true },
+    checkout_complete: { ga4: 'purchase', meta: 'Purchase', gtm: 'purchase', ecom: true },
+    product_inquiry: { ga4: 'generate_lead', meta: 'Lead', gtm: 'product_inquiry', ecom: false },
+    add_to_cart: { ga4: 'add_to_cart', meta: 'AddToCart', gtm: 'add_to_cart', ecom: true },
+    view_product: { ga4: 'view_item', meta: 'ViewContent', gtm: 'view_item', ecom: true }
+  };
+
+  function purchaseDedupKey(orderId) {
+    return 'zappy_purchase_fired_' + String(orderId || '');
+  }
+
+  function alreadyFiredPurchase(orderId) {
+    if (!orderId) return false;
+    try {
+      return sessionStorage.getItem(purchaseDedupKey(orderId)) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markPurchaseFired(orderId) {
+    if (!orderId) return;
+    try { sessionStorage.setItem(purchaseDedupKey(orderId), '1'); } catch (e) {}
+  }
+
+  /**
+   * Fire a marketing event to first-party analytics + GA4/GTM/Meta when present.
+   * @param {string} eventName marketing ID or ecommerce alias
+   * @param {object} [metadata]
+   * @param {{ skipFirstParty?: boolean }} [opts]
+   */
+  window.zappyFireMarketingEvent = function(eventName, metadata, opts) {
+    try {
+      opts = opts || {};
+      metadata = metadata || {};
+      var eventId = ECOM_ALIAS[eventName] || eventName;
+      var plat = PLATFORM[eventId];
+      if (!plat) return;
+
+      if (!metadata.pagePath && !metadata.page_path) {
+        metadata.pagePath = pagePath();
+      }
+
+      if (eventId === 'checkout_complete') {
+        var oid = String(metadata.orderId || metadata.order_id || metadata.transaction_id || '');
+        if (oid && alreadyFiredPurchase(oid)) return;
+        if (oid) markPurchaseFired(oid);
+      }
+
+      // First-party (skip when already tracked via zappyTrackEcomAnalytics path
+      // that opts out, or when caller already recorded under a different name)
+      if (!opts.skipFirstParty) {
+        try {
+          if (window.zappyAnalytics && typeof window.zappyAnalytics.track === 'function') {
+            window.zappyAnalytics.track(eventId, metadata);
+          }
+        } catch (e1) {}
+      }
+
+      // GTM / dataLayer — platform-standard ecommerce event names
+      try {
+        window.dataLayer = window.dataLayer || [];
+        if (plat.ecom) {
+          var ga4ForGtm = buildGa4Params(eventId, metadata);
+          var ecommerce = {};
+          if (ga4ForGtm.transaction_id) ecommerce.transaction_id = ga4ForGtm.transaction_id;
+          if (ga4ForGtm.value != null) ecommerce.value = ga4ForGtm.value;
+          if (ga4ForGtm.currency) ecommerce.currency = ga4ForGtm.currency;
+          if (ga4ForGtm.items) ecommerce.items = ga4ForGtm.items;
+          window.dataLayer.push({ event: plat.gtm, ecommerce: ecommerce });
+          // Secondary Zappy-specific trigger for merchants who want it
+          if (eventId === 'checkout_complete' || eventId === 'checkout_started') {
+            window.dataLayer.push({ event: eventId, ecommerce: ecommerce });
+          }
+        } else {
+          var dl = { event: plat.gtm };
+          for (var k in metadata) {
+            if (Object.prototype.hasOwnProperty.call(metadata, k)) dl[k] = metadata[k];
+          }
+          window.dataLayer.push(dl);
+        }
+      } catch (e2) {}
+
+      // GA4 gtag
+      try {
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', plat.ga4, buildGa4Params(eventId, metadata));
+        }
+      } catch (e3) {}
+
+      // Meta Pixel (only when fbq is loaded — consent-gated lazy loader)
+      try {
+        if (typeof window.fbq === 'function') {
+          window.fbq('track', plat.meta, buildMetaParams(eventId, metadata));
+        }
+      } catch (e4) {}
+    } catch (err) {}
+  };
+
+  // ---- Click listeners (capture) ----
+  var recent = Object.create(null);
+  function dedupe(key) {
+    var now = Date.now();
+    if (recent[key] && now - recent[key] < 800) return true;
+    recent[key] = now;
+    return false;
+  }
+
+  function closest(el, selector) {
+    if (!el) return null;
+    if (el.closest) return el.closest(selector);
+    return null;
+  }
+
+  function findAnchor(el) {
+    var node = el;
+    while (node && node !== document) {
+      if (node.tagName === 'A') return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function isWhatsAppHref(href) {
+    if (!href) return false;
+    var h = String(href).toLowerCase();
+    return h.indexOf('wa.me/') !== -1 ||
+      h.indexOf('api.whatsapp.com') !== -1 ||
+      h.indexOf('whatsapp.com/send') !== -1 ||
+      h.indexOf('whatsapp:') === 0;
+  }
+
+  document.addEventListener('click', function(e) {
+    try {
+      var target = e.target;
+      if (!target) return;
+
+      // WhatsApp
+      var waFloat = closest(target, '.whatsapp-float, a.whatsapp-float, [data-zappy-whatsapp]');
+      var anchor = findAnchor(target);
+      var href = (anchor && anchor.href) || '';
+      if (waFloat || (anchor && isWhatsAppHref(href))) {
+        if (!dedupe('wa:' + href)) {
+          var waSource = waFloat ? 'float' : 'link';
+          window.zappyFireMarketingEvent('whatsapp_click', {
+            source: waSource,
+            href: href || null,
+            pagePath: pagePath()
+          });
+        }
+        return;
+      }
+
+      // Phone
+      var phoneBtn = closest(target, '.phone-header-btn, .nav-phone-btn, .call-btn, [data-zappy-phone]');
+      var telHref = '';
+      if (anchor && anchor.href && String(anchor.href).toLowerCase().indexOf('tel:') === 0) {
+        telHref = anchor.href;
+      } else if (phoneBtn && phoneBtn.href && String(phoneBtn.href).toLowerCase().indexOf('tel:') === 0) {
+        telHref = phoneBtn.href;
+      }
+      if (phoneBtn || telHref) {
+        var phone = '';
+        if (telHref) {
+          phone = String(telHref).replace(/^tel:/i, '').trim();
+        }
+        if (!dedupe('tel:' + (phone || (phoneBtn && phoneBtn.id) || 'btn'))) {
+          window.zappyFireMarketingEvent('phone_click', {
+            source: phoneBtn ? 'button' : 'link',
+            phone: phone || null,
+            href: telHref || null,
+            pagePath: pagePath()
+          });
+        }
+        return;
+      }
+
+      // Catalog / product inquiry
+      if (IS_CATALOG || IS_FULL) {
+        var inq = closest(target, '.card-inquiry-btn, #zappy-pdp-inquiry-btn, a.inquiry-btn');
+        if (inq) {
+          if (!dedupe('inq:' + (inq.id || inq.className))) {
+            var product = window.currentProduct || null;
+            var productId = (inq.getAttribute && inq.getAttribute('data-product-id')) ||
+              (product && product.id) || null;
+            var productName = (inq.getAttribute && inq.getAttribute('data-product-name')) ||
+              (product && product.name) || null;
+            var channel = 'contact_page';
+            var inqHref = (inq.tagName === 'A' && inq.href) ? inq.href : '';
+            if (inqHref && String(inqHref).toLowerCase().indexOf('mailto:') === 0) channel = 'mailto';
+            window.zappyFireMarketingEvent('product_inquiry', {
+              source: inq.id === 'zappy-pdp-inquiry-btn' ? 'pdp' : 'card',
+              productId: productId,
+              productName: productName,
+              channel: channel,
+              pagePath: pagePath()
+            });
+          }
+        }
+      }
+    } catch (err) {}
+  }, true);
+})();
+</script>
+    <meta property="og:title" content="Street Stock - סטריט סטוק" />
+    <meta property="og:description" content="Street Stock היא חנות הסטוק האונליין שלך לכל צרכי הבית — פועלים מאשקלון ומגיעים לכל הארץ. אנחנו מאמינים שכל בית ראוי לקבל מוצרים איכותיים במחיר שהגיוני, בלי פשרות ובלי סיבוכים." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Street Stock - סטריט סטוק" />
+    <meta name="twitter:description" content="Street Stock היא חנות הסטוק האונליין שלך לכל צרכי הבית — פועלים מאשקלון ומגיעים לכל הארץ. אנחנו מאמינים שכל בית ראוי לקבל מוצרים איכותיים במחיר שהגיוני, בלי פשרות ובלי סיבוכים." />
+    <meta property="og:type" content="website" />
+  <meta property="og:locale" content="he_IL" />
+  
+  
+  
+  
+  
+  <style>
+    .skip-link { position: absolute; top: 0; left: 0; transform: translateY(-200%); padding: 12px 18px; background: var(--bg-dark, #1a1a1a); color: var(--text-light, #fff); font-weight: 600; border-radius: 0 0 8px 0; z-index: 10000; }
+    .skip-link:focus { transform: none; outline: 2px solid var(--ring, #fff); outline-offset: 2px; }
+    :focus-visible { outline: 2px solid var(--ring, currentColor); outline-offset: 3px; }
+  </style>
+
+
+  
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css" />
+    
+    <!-- Mickidum Accessibility Toolbar -->
+    
+
+
+    
+
+<script>window.ZAPPY_PRODUCTS_LISTING_PATH = "/products";</script>
+
+    <style id="zappy-announcement-bar-styles">
+    /* Announcement Bar Styles */
+    .zappy-announcement-bar {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      text-align: center !important;
+      padding: 10px 20px !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      line-height: 1.4 !important;
+      box-sizing: border-box !important;
+      z-index: 1001 !important;
+      min-height: 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .zappy-announcement-bar .zappy-announcement-message {
+      position: absolute !important;
+      opacity: 0 !important;
+      transition: opacity 0.5s ease-in-out !important;
+      width: 100% !important;
+      left: 0 !important;
+      right: 0 !important;
+      padding: 0 20px !important;
+      box-sizing: border-box !important;
+    }
+    .zappy-announcement-bar .zappy-announcement-message.active {
+      opacity: 1 !important;
+    }
+    </style>
+    <style id="zappy-critical-above-fold-css">
+html{box-sizing:border-box;-webkit-text-size-adjust:100%}*,*::before,*::after{box-sizing:inherit}body{margin:0;min-width:320px;overflow-x:clip}img,svg,video{max-width:100%;height:auto}main{display:block}.container{width:min(100% - 32px,1200px);margin-inline:auto}.navbar,nav.navbar,header .navbar,header[role="banner"]{position:relative;z-index:1000;width:100%}.nav-container,.navbar .container{display:flex;align-items:center;justify-content:space-between;min-height:64px}.logo,.logo-link img{display:block;width:35px;height:35px;object-fit:contain}.nav-menu,#navMenu{list-style:none;margin:0;padding:0}.navbar a,.nav-menu a,#navMenu a,.navbar .nav-links a{color:inherit;text-decoration:none}.navbar .sub-menu,.nav-menu .sub-menu,#navMenu .sub-menu{display:none}.fa,.fas,.far,.fab,.fa-solid,.fa-regular,.fa-brands{display:inline-block;min-width:1em;text-align:center}html:not(#zappy-noop)[data-zappy-site-type="ecommerce"] .phone-header-btn,html:not(#zappy-noop) .navbar:has(.nav-ecommerce-icons)>.phone-header-btn{display:none!important;visibility:hidden!important;width:0!important;height:0!important;pointer-events:none!important}.zappy-preview-empty-store-cta{display:none!important;visibility:hidden!important;height:0!important;max-height:0!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important}.zappy-catalog-menu{background:var(--surface-color,var(--surface,linear-gradient(135deg,#f8f9fa 0%,#fff 100%)));border-bottom:1px solid var(--border-color,#e5e7eb);padding:0;position:sticky;top:0;z-index:90}.zappy-catalog-menu[dir=rtl],.zappy-catalog-menu.rtl{direction:rtl}.zappy-catalog-menu[dir=ltr],.zappy-catalog-menu.ltr{direction:ltr}.catalog-menu-container{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 24px;overflow:visible}.catalog-menu-categories,.catalog-menu-list{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0;padding:0;list-style:none}.catalog-menu-item{display:inline-flex;align-items:center;padding:8px 16px;font-size:14px;font-weight:500;color:var(--text-color,var(--text,#374151));text-decoration:none;border-radius:20px;white-space:nowrap}.catalog-menu-all{background:var(--primary-color,var(--primary,#111));color:var(--text-light,#fff)!important}.catalog-menu-parent{position:relative;display:inline-flex;align-items:center}.catalog-menu-trigger{display:inline-flex;align-items:center;gap:6px}.catalog-menu-chevron{flex-shrink:0}.catalog-menu-parent>.sub-menu{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}.hero-section,.index-hero-section,section[class*="hero"]{position:relative;overflow:hidden;min-height:560px}.hero-bg-wrapper,.hero-bg-image,section[class*="hero"] [class*="hero-bg"]{position:absolute;inset:0;width:100%;height:100%}.hero-bg-wrapper img,.hero-bg-image img,section[class*="hero"] [data-hero-bg],section[class*="hero"] img[data-hero-background="true"]{width:100%!important;height:100%!important;object-fit:cover!important;display:block}.hero-content,section[class*="hero"] .container{position:relative;z-index:2}@media(max-width:768px){:root{--header-height:72px;--total-header-height:72px;--zappy-mobile-menu-top:72px}html[data-zappy-site-type="ecommerce"] body{padding-top:var(--total-header-height,72px)}html[data-zappy-site-type="ecommerce"] body>nav.navbar,html[data-zappy-site-type="ecommerce"] body>.navbar:not(.zappy-catalog-menu){position:fixed!important;top:0;left:0;right:0;z-index:100000;width:100%;margin-bottom:0}.zappy-catalog-menu{position:fixed;top:var(--header-height,72px);left:0;right:0;z-index:99999}.nav-container,.navbar .container{min-height:60px}.nav-menu,#navMenu{max-width:100vw;overflow-x:hidden}.hero-section,.index-hero-section,section[class*="hero"]{min-height:100svh}.hero-bg-wrapper,.hero-bg-image,.hero-scrim{min-height:100svh}}
+/* ZAPPY_CRITICAL_FIRST_PAINT_PARITY_V1 */
+
+/* ZAPPY_ANNOUNCEMENT_HEADER_OFFSET_CSS_V2 */
+:root {
+  --zappy-header-stack-height: calc(var(--zappy-announcement-height, 40px) + var(--header-height, 72px));
+}
+body:has(.zappy-announcement-bar) nav.navbar:not(.zappy-catalog-menu),
+body:has(.zappy-announcement-bar) header.navbar,
+body:has(.zappy-announcement-bar) .navbar:not(.zappy-catalog-menu):not(.mobile-search-panel) {
+  top: var(--zappy-announcement-height, 40px) !important;
+}
+/* First-paint: pull fullscreen heroes behind the fixed announcement+nav so a
+   transparent --nav-bg does not flash the cream body strip (live FOUC that
+   preview never showed because preview injects the same underlap eagerly). */
+body:has(.zappy-announcement-bar) section[data-hero-type^="fullscreen"],
+body:has(.zappy-announcement-bar) .index-hero-section,
+body:has(.zappy-announcement-bar) main > section[class*="hero"]:first-of-type {
+  margin-top: calc(-1 * var(--zappy-header-stack-height)) !important;
+  padding-top: calc(var(--zappy-header-stack-height)) !important;
+}
+
+
+/* ZAPPY_CONTENT_ALIGNMENT_FIRST_PAINT_CSS_V1 */
+[data-zappy-content-align] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+[data-zappy-content-align^="top-"] { justify-content: flex-start !important; }
+[data-zappy-content-align^="upper-"],
+[data-zappy-content-align^="center-"],
+[data-zappy-content-align^="lower-"] { justify-content: center !important; }
+[data-zappy-content-align^="bottom-"] { justify-content: flex-end !important; }
+[data-zappy-content-align$="-left"],
+[data-zappy-content-align$="-mid-left"] {
+  align-items: flex-start !important;
+  text-align: start !important;
+}
+[data-zappy-content-align$="-center"] {
+  align-items: center !important;
+  text-align: center !important;
+}
+[data-zappy-content-align$="-right"],
+[data-zappy-content-align$="-mid-right"] {
+  align-items: flex-end !important;
+  text-align: end !important;
+}
+[data-zappy-content-align] [data-zappy-align-target] {
+  margin-left: auto;
+  margin-right: auto;
+}
+[data-zappy-content-align$="-center"] [data-zappy-align-target],
+[data-zappy-content-align$="-center"] [data-zappy-align-target] > * {
+  text-align: center !important;
+}
+
+</style>
+    <link rel="preload" href="/styles.css" as="style" />
+    <link rel="stylesheet" href="/styles.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="/styles.css" /></noscript>
+    
+    <link rel="preload" as="image" href="/assets/site-home-hero-image-1-1784180448559-mi0jp6.webp?v=1784180451738" fetchpriority="high" />
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: var(--text-dark, #333) !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+      [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 10px !important; padding-right: 28px !important; }
+      .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus (exclude catalog sub-menus that use <a> children instead of <li>) */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))):not(:has(> a)), .sub-menu:not(:has(li)):not(:has(> a)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .navbar .sub-menu.mobile-expanded, .nav-menu .sub-menu.mobile-expanded, #navMenu .sub-menu.mobile-expanded { max-height: none !important; overflow-y: visible !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-dark) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-dark) !important; white-space: normal !important; }
+        .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+        [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 0 !important; padding-right: 28px !important; }
+        .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+        .nav-menu.active, #navMenu.active { max-width: 100vw !important; overflow-x: hidden !important; box-sizing: border-box !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-dark) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+<style data-zappy-image-carousel-css="true">[data-zappy-image-carousel]{position:relative;overflow:hidden}.zappy-carousel-hero[data-zappy-image-carousel]{position:absolute;inset:0;z-index:0}[data-zappy-image-carousel]>.zappy-carousel-slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease-in-out;pointer-events:none;z-index:0}[data-zappy-image-carousel]>.zappy-carousel-slide.is-active{opacity:1;pointer-events:auto;z-index:1}[data-zappy-image-carousel]>.zappy-carousel-slide img{width:100%;height:100%;object-fit:cover;display:block;max-width:none;max-height:none;margin:0}.zappy-carousel-hero[data-zappy-image-carousel]>.zappy-carousel-slide img{position:absolute;inset:0}[data-zappy-image-carousel] .zappy-carousel-slide-link{position:absolute;inset:0;display:block;z-index:2;background:transparent}.zappy-hero-link-overlay{position:absolute;inset:0;display:block;z-index:1;background:transparent}body.zappy-edit-mode .zappy-hero-link-overlay,body.zappy-edit-mode [data-zappy-image-carousel] .zappy-carousel-slide-link,body.zappy-image-edit-mode .zappy-hero-link-overlay,body.zappy-image-edit-mode [data-zappy-image-carousel] .zappy-carousel-slide-link{pointer-events:none!important}</style>
+    <style id="zappy-widget-visibility">
+      html[dir="rtl"] .whatsapp-float { right: 20px !important; left: auto !important; }
+      html[dir="ltr"] .whatsapp-float, html:not([dir]) .whatsapp-float { left: 20px !important; right: auto !important; }
+      html[dir="rtl"] #mic-access-tool-general-button, html[dir="rtl"] .mic-access-tool-general-button,
+      html[dir="rtl"] #mic-init-access-tool .mic-access-tool-general-button,
+      html[dir="rtl"] #mic-init-access-tool #mic-access-tool-general-button,
+      html[dir="rtl"] ._access-icon { left: 20px !important; right: auto !important; }
+      html[dir="ltr"] #mic-access-tool-general-button, html[dir="ltr"] .mic-access-tool-general-button,
+      html[dir="ltr"] #mic-init-access-tool .mic-access-tool-general-button,
+      html[dir="ltr"] #mic-init-access-tool #mic-access-tool-general-button,
+      html[dir="ltr"] ._access-icon,
+      html:not([dir]) #mic-access-tool-general-button, html:not([dir]) .mic-access-tool-general-button,
+      html:not([dir]) #mic-init-access-tool .mic-access-tool-general-button,
+      html:not([dir]) #mic-init-access-tool #mic-access-tool-general-button,
+      html:not([dir]) ._access-icon { right: 20px !important; left: auto !important; }
+      @media (max-width: 768px) { .whatsapp-float { display: flex !important; } }
+      @media (min-width: 769px) { .whatsapp-float { display: flex !important; } }
+      @media (max-width: 768px) {
+        #mic-access-tool-general-button, .mic-access-tool-general-button,
+        #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+        ._access-icon { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
+        #mic-access-tool-box.opened-mic-access-tool, .mic-access-tool-box.opened-mic-access-tool,
+        #mic-init-access-tool #mic-access-tool-box.opened-mic-access-tool {
+          visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
+        }
+      }
+      @media (min-width: 769px) {
+        #mic-access-tool-general-button, .mic-access-tool-general-button,
+        #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+        ._access-icon { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
+        #mic-access-tool-box.opened-mic-access-tool, .mic-access-tool-box.opened-mic-access-tool,
+        #mic-init-access-tool #mic-access-tool-box.opened-mic-access-tool {
+          visibility: visible !important; opacity: 1 !important; pointer-events: auto !important;
+        }
+      }
+    </style>
+</head>
+<body>
+
+<div class="zappy-announcement-bar">
+      <span class="zappy-announcement-message active">סט מצעים 2 ב 399.90 ש"ח </span>
+    </div>
+
+    <div class="mobile-search-panel" id="mobile-search-panel">
+      <div class="search-wrapper">
+        <input type="text" id="mobile-search-input" placeholder="חיפוש מוצרים..." autocomplete="off" />
+        <button class="search-submit" id="mobile-search-submit" title="חיפוש">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </button>
+        <button class="close-search" id="close-mobile-search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="search-results" id="mobile-search-results"></div>
+    </div>
+  
+<script>window.ZAPPY_WEBSITE_ID = "d2eb5635-5cf7-4f0c-ae03-f0772f98e263";window.ZAPPY_API_BASE = "https://qaapi.zappy5.com"</script><a class="skip-link" href="#main">דלג לתוכן הראשי</a>
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg style="display:block !important" class="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none !important">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <button class="phone-header-btn" data-phone="0545286728" aria-label="Call">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+    </svg>
+  </button>
+
+  <div class="nav-container">
+    <div class="nav-right-group"><div class="nav-brand">
+      <a href="/" class="logo-link"><img class="logo" src="/assets/site-home-image-1.webp" alt="Street Stock" decoding="async" width="35" height="35" /></a>
+    </div><ul class="nav-menu" id="navMenu">
+
+    <li class="menu-item-has-children zappy-products-dropdown">
+      <a href="/products">
+        מוצרים
+        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </a>
+      <ul class="sub-menu" id="zappy-nav-category-links" dir="rtl">
+        <li><a href="/products" data-i18n="ecom_products">מוצרים</a></li>
+        <!-- Categories will be loaded dynamically -->
+      <li class="zappy-nav-parent" data-category-id="92b329d1-17ea-4c25-97ff-fecaea97569b" data-category-slug="acrylic"><a href="/category/acrylic" dir="rtl">אקריל</a></li><li class="zappy-nav-child" data-category-id="18d557bf-94f5-451f-9ded-dfa851bad398" data-category-slug="acrylic-products"><a href="/category/acrylic-products" dir="rtl">מוצרי אקריל</a></li><li class="zappy-nav-child" data-category-id="805d3911-0590-4ed9-9d62-38dc7f9b3297" data-category-slug="acrylic-organizers"><a href="/category/acrylic-organizers" dir="rtl">ארגוניות אקריל</a></li><li class="zappy-nav-child" data-category-id="8b3a2e32-d5fa-4211-8e1f-393ac9c93c7e" data-category-slug="acrylic-jars"><a href="/category/acrylic-jars" dir="rtl">צנצנות אקריל</a></li><li data-category-id="7acd91e5-92f4-435a-905d-5dc2dc825530" data-category-slug="pots-and-pans"><a href="/category/pots-and-pans" dir="rtl">סירים ומחבתות</a></li><li class="zappy-nav-parent" data-category-id="6b0ae202-b54d-4f4d-b9e6-732569fb2386" data-category-slug="trash-cans"><a href="/category/trash-cans" dir="rtl">פחים</a></li><li class="zappy-nav-child" data-category-id="9552ac7d-46d2-4e3c-a8ce-cfd3d7c1fad1" data-category-slug="kitchen-bins"><a href="/category/kitchen-bins" dir="rtl">פחי מטבח</a></li><li class="zappy-nav-child" data-category-id="d9500d80-1b97-4616-933a-ec099c6fe4b9" data-category-slug="portable-toilets"><a href="/category/portable-toilets" dir="rtl">פחי שירותים</a></li><li class="zappy-nav-parent" data-category-id="c2494b9e-d996-4927-9bc1-adb0d77d6cb9" data-category-slug="bathtub"><a href="/category/bathtub" dir="rtl">אמבטיה</a></li><li class="zappy-nav-child" data-category-id="a7e49238-9461-4fe6-91bb-ac369530f4e3" data-category-slug="dispensaries"><a href="/category/dispensaries" dir="rtl">דיספנסרים</a></li><li class="zappy-nav-child" data-category-id="9e20885f-ef29-40d2-ad47-9d70b2921cdc" data-category-slug="shower-curtains"><a href="/category/shower-curtains" dir="rtl">וילונות אמבטיה</a></li><li class="zappy-nav-child" data-category-id="697bad1a-70d4-4c52-b2fa-5b894fb90bd7" data-category-slug="bath-products"><a href="/category/bath-products" dir="rtl">מוצרי אמבט</a></li><li class="zappy-nav-child" data-category-id="ab6001ef-2c2d-42c3-9370-bb71242b3d65" data-category-slug="bathroom-bins"><a href="/category/bathroom-bins" dir="rtl">פחי אמבטיה</a></li><li class="zappy-nav-child" data-category-id="a045c149-d7d2-4b0d-8a8f-338e765d1e03" data-category-slug="bath-mats"><a href="/category/bath-mats" dir="rtl">שטיחי אמבטיה</a></li><li class="zappy-nav-parent" data-category-id="04e2d826-0b1f-486a-85eb-58dd9023e562" data-category-slug="housewares"><a href="/category/housewares" dir="rtl">כלי בית</a></li><li class="zappy-nav-child" data-category-id="d3d86aca-d932-4f37-a76d-8bbc13df3fa0" data-category-slug="cups-drinking-pitchers"><a href="/category/cups-drinking-pitchers" dir="rtl">כוסות + קנקני שתייה</a></li><li class="zappy-nav-child" data-category-id="3cf032ff-fd3b-46c6-b467-3ca5f36eebc1" data-category-slug="dish-dryers"><a href="/category/dish-dryers" dir="rtl">מייבשי כלים</a></li><li class="zappy-nav-child" data-category-id="9c2ceac1-4e4d-495b-9909-9edea475fcfd" data-category-slug="cutting-boards"><a href="/category/cutting-boards" dir="rtl">משטחי חיתוך</a></li><li class="zappy-nav-child" data-category-id="5a2afe49-8eaa-4d14-aba8-ec2b06ed8220" data-category-slug="kitchen-knives"><a href="/category/kitchen-knives" dir="rtl">סכיני מטבח</a></li><li class="zappy-nav-child" data-category-id="88b0b197-4b2a-4b78-a895-8955e9c1ddaa" data-category-slug="dishes-and-cutlery"><a href="/category/dishes-and-cutlery" dir="rtl">צלחות+סכום</a></li><li class="zappy-nav-child" data-category-id="e343d44d-8c77-480e-869f-2fc7e8e1ee01" data-category-slug="glass-jars"><a href="/category/glass-jars" dir="rtl">צנצנות זכוכית</a></li><li class="zappy-nav-parent" data-category-id="0e73d006-a0ee-4479-b127-3f820ba664cd" data-category-slug="landscaping-and-storage"><a href="/category/landscaping-and-storage" dir="rtl">נוי ואחסון </a></li><li class="zappy-nav-child" data-category-id="552b1b0a-a859-4ae3-b5fa-8911ad05f832" data-category-slug="similarcomparable-services"><a href="/category/similarcomparable-services" dir="rtl">הדומים</a></li><li class="zappy-nav-child" data-category-id="b2604485-ed4b-48c1-adb7-e0b318620b16" data-category-slug="decorative-stands"><a href="/category/decorative-stands" dir="rtl">מעמדים דקורטיבים </a></li><li class="zappy-nav-child" data-category-id="2f6e5cda-b035-4b0a-be50-63da4b1f2422" data-category-slug="storage-baskets"><a href="/category/storage-baskets" dir="rtl">סלסלות אחסון</a></li><li class="zappy-nav-child" data-category-id="c33ec434-30f9-4767-9187-cc0cd666b44e" data-category-slug="service-carts"><a href="/category/service-carts" dir="rtl">עגלות שירות </a></li><li class="zappy-nav-parent" data-category-id="cfae8799-1f2f-452e-a7bd-119ed7d468b4" data-category-slug="textile"><a href="/category/textile" dir="rtl">טקסטיל</a></li><li class="zappy-nav-child" data-category-id="05e893da-df8a-4546-b089-94d2f1e1ad43" data-category-slug="curtains"><a href="/category/curtains" dir="rtl">וילונות</a></li><li class="zappy-nav-child" data-category-id="f19aef4f-cde8-485b-9683-296ddc8e812f" data-category-slug="sleep-pillows"><a href="/category/sleep-pillows" dir="rtl">כריות שינה</a></li><li class="zappy-nav-child" data-category-id="6fbe2edc-7c5a-43a9-aa4b-c75c2cacf332" data-category-slug="towels"><a href="/category/towels" dir="rtl">מגבות</a></li><li class="zappy-nav-child" data-category-id="83f1fe25-eea4-45e5-ba57-9dce22779179" data-category-slug="mattress-protectors"><a href="/category/mattress-protectors" dir="rtl">מגני מזרון</a></li><li class="zappy-nav-child" data-category-id="57816adb-2978-4999-bc2f-58f88940c1e1" data-category-slug="table-linens"><a href="/category/table-linens" dir="rtl">מפות שולחן</a></li><li class="zappy-nav-child" data-category-id="7791df13-12f7-43bf-95eb-98a9291fb8ba" data-category-slug="100-cotton-sheets"><a href="/category/100-cotton-sheets" dir="rtl">סדינים 100% כותנה </a></li><li class="zappy-nav-child" data-category-id="7cfffc44-29d0-48dd-842d-2a34245cc0b7" data-category-slug="cotton-bedding-set"><a href="/category/cotton-bedding-set" dir="rtl">סט מצעים 100% כותנה</a></li><li class="zappy-nav-parent" data-category-id="cd580aef-3057-4bb9-ac31-688702ae3ea2" data-category-slug="carpets"><a href="/category/carpets" dir="rtl">שטיחים</a></li><li class="zappy-nav-child" data-category-id="f5e120e5-819f-4696-b110-c9e2cbb5da59" data-category-slug="bath-mats-"><a href="/category/bath-mats-" dir="rtl">שטיחי אמבטיה </a></li><li class="zappy-nav-child" data-category-id="de785b47-6a12-4e86-8168-e0f9fdb90acc" data-category-slug="kitchen-rugs"><a href="/category/kitchen-rugs" dir="rtl">שטיחי מטבח</a></li><li class="zappy-nav-child" data-category-id="82b4f5be-34e4-44cf-8ee6-8997ae417745" data-category-slug="living-room-rugs"><a href="/category/living-room-rugs" dir="rtl">שטיחי סלון</a></li><li class="zappy-nav-parent" data-category-id="1df3c581-8d93-469c-9163-208ce636349d" data-category-slug="blankets"><a href="/category/blankets" dir="rtl">שמיכות</a></li><li class="zappy-nav-child" data-category-id="37da7eb0-ff55-4866-88fa-a682db51fbbd" data-category-slug="winter-blankets"><a href="/category/winter-blankets" dir="rtl">שמיכות חורף</a></li><li class="zappy-nav-child" data-category-id="2fdcb610-d0bb-44bd-87e3-5f49cbf5058d" data-category-slug="down-comforters"><a href="/category/down-comforters" dir="rtl">שמיכות פוך </a></li><li class="zappy-nav-child" data-category-id="b7ef8369-146e-481c-9424-3d2a2c0235c0" data-category-slug="summer-blankets"><a href="/category/summer-blankets" dir="rtl">שמיכות קיץ </a></li><li data-category-id="b990e9a3-5bf8-44c7-8ed6-b3d2ed1d9968" data-category-slug="luggage"><a href="/category/luggage" dir="rtl">מזוודות </a></li><li data-category-id="fddd5fda-04e2-445c-bee9-55fd642c178d" data-category-slug="laundry-facilities"><a href="/category/laundry-facilities" dir="rtl">מתקני כביסה</a></li><li data-category-id="6848ff35-a0fd-45c3-86da-03aae849b0cc" data-category-slug="tyroler"><a href="/category/tyroler" dir="rtl">טירולר</a></li><li data-category-id="ffae4f0a-d3a0-4f90-84f9-d60ac67e8260" data-category-slug="general"><a href="/category/general" dir="rtl">כללי</a></li><li data-category-id="8dd57b6d-03f2-4be7-a60d-47e378afcd2f" data-category-slug="mirrors-and-frames"><a href="/category/mirrors-and-frames" dir="rtl">מראות ומסגרות</a></li><li data-category-id="1c13e693-ecaf-41f0-9be1-7e70d7dc75ee" data-category-slug="summer"><a href="/category/summer" dir="rtl">קיץ</a></li><li data-category-id="8908dc4f-0346-4fd7-93a8-76c32ab65e23" data-category-slug="electrical-products"><a href="/category/electrical-products" dir="rtl">מוצרי חשמל</a></li></ul>
+    </li>
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  
+
+    
+  <li><a href="/">Home</a></li><li><a href="/about">אודות Street Stock</a></li><li><a href="/contact-us">צרו קשר</a></li></ul><div class="nav-ecommerce-icons nav-icons-left"><a href="/login" class="login-link nav-login" title="התחברות"><svg class="login-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a><a href="#cart" class="cart-link nav-cart" id="cart-drawer-toggle" title="עגלת קניות"><svg class="cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-count">0</span></a><div class="nav-search-box">
+    <input type="text" class="nav-search-input" id="nav-search-input" placeholder="חיפוש מוצרים..." autocomplete="off" />
+    <button class="nav-search-btn" id="nav-search-btn" title="חיפוש">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    </button>
+    <div class="nav-search-results" id="nav-search-results"></div>
+  </div></div><div class="nav-ecommerce-icons nav-icons-right"><button class="nav-search-toggle" id="mobile-search-toggle" title="חיפוש"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button></div></div>
+
+    
+
+    
+  </div>
+</nav>
+
+    <nav class="zappy-catalog-menu rtl" id="zappy-catalog-menu" dir="rtl">
+      <div class="catalog-menu-container">
+        <a href="/products" class="catalog-menu-item catalog-menu-all">כל המוצרים</a>
+        <div class="catalog-menu-categories" id="zappy-category-links" dir="rtl" data-zappy-catalog-baked="1"><div class="catalog-menu-parent" data-category-id="92b329d1-17ea-4c25-97ff-fecaea97569b" data-category-slug="acrylic"><a href="/category/acrylic" class="catalog-menu-item catalog-menu-trigger" dir="rtl">אקריל <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/acrylic-products" class="catalog-menu-item" data-category-id="18d557bf-94f5-451f-9ded-dfa851bad398" data-category-slug="acrylic-products" dir="rtl">מוצרי אקריל</a><a href="/category/acrylic-organizers" class="catalog-menu-item" data-category-id="805d3911-0590-4ed9-9d62-38dc7f9b3297" data-category-slug="acrylic-organizers" dir="rtl">ארגוניות אקריל</a><a href="/category/acrylic-jars" class="catalog-menu-item" data-category-id="8b3a2e32-d5fa-4211-8e1f-393ac9c93c7e" data-category-slug="acrylic-jars" dir="rtl">צנצנות אקריל</a></div></div><a href="/category/pots-and-pans" class="catalog-menu-item" data-category-id="7acd91e5-92f4-435a-905d-5dc2dc825530" data-category-slug="pots-and-pans" dir="rtl">סירים ומחבתות</a><div class="catalog-menu-parent" data-category-id="6b0ae202-b54d-4f4d-b9e6-732569fb2386" data-category-slug="trash-cans"><a href="/category/trash-cans" class="catalog-menu-item catalog-menu-trigger" dir="rtl">פחים <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/kitchen-bins" class="catalog-menu-item" data-category-id="9552ac7d-46d2-4e3c-a8ce-cfd3d7c1fad1" data-category-slug="kitchen-bins" dir="rtl">פחי מטבח</a><a href="/category/portable-toilets" class="catalog-menu-item" data-category-id="d9500d80-1b97-4616-933a-ec099c6fe4b9" data-category-slug="portable-toilets" dir="rtl">פחי שירותים</a></div></div><div class="catalog-menu-parent" data-category-id="c2494b9e-d996-4927-9bc1-adb0d77d6cb9" data-category-slug="bathtub"><a href="/category/bathtub" class="catalog-menu-item catalog-menu-trigger" dir="rtl">אמבטיה <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/dispensaries" class="catalog-menu-item" data-category-id="a7e49238-9461-4fe6-91bb-ac369530f4e3" data-category-slug="dispensaries" dir="rtl">דיספנסרים</a><a href="/category/shower-curtains" class="catalog-menu-item" data-category-id="9e20885f-ef29-40d2-ad47-9d70b2921cdc" data-category-slug="shower-curtains" dir="rtl">וילונות אמבטיה</a><a href="/category/bath-products" class="catalog-menu-item" data-category-id="697bad1a-70d4-4c52-b2fa-5b894fb90bd7" data-category-slug="bath-products" dir="rtl">מוצרי אמבט</a><a href="/category/bathroom-bins" class="catalog-menu-item" data-category-id="ab6001ef-2c2d-42c3-9370-bb71242b3d65" data-category-slug="bathroom-bins" dir="rtl">פחי אמבטיה</a><a href="/category/bath-mats" class="catalog-menu-item" data-category-id="a045c149-d7d2-4b0d-8a8f-338e765d1e03" data-category-slug="bath-mats" dir="rtl">שטיחי אמבטיה</a></div></div><div class="catalog-menu-parent" data-category-id="04e2d826-0b1f-486a-85eb-58dd9023e562" data-category-slug="housewares"><a href="/category/housewares" class="catalog-menu-item catalog-menu-trigger" dir="rtl">כלי בית <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/cups-drinking-pitchers" class="catalog-menu-item" data-category-id="d3d86aca-d932-4f37-a76d-8bbc13df3fa0" data-category-slug="cups-drinking-pitchers" dir="rtl">כוסות + קנקני שתייה</a><a href="/category/dish-dryers" class="catalog-menu-item" data-category-id="3cf032ff-fd3b-46c6-b467-3ca5f36eebc1" data-category-slug="dish-dryers" dir="rtl">מייבשי כלים</a><a href="/category/cutting-boards" class="catalog-menu-item" data-category-id="9c2ceac1-4e4d-495b-9909-9edea475fcfd" data-category-slug="cutting-boards" dir="rtl">משטחי חיתוך</a><a href="/category/kitchen-knives" class="catalog-menu-item" data-category-id="5a2afe49-8eaa-4d14-aba8-ec2b06ed8220" data-category-slug="kitchen-knives" dir="rtl">סכיני מטבח</a><a href="/category/dishes-and-cutlery" class="catalog-menu-item" data-category-id="88b0b197-4b2a-4b78-a895-8955e9c1ddaa" data-category-slug="dishes-and-cutlery" dir="rtl">צלחות+סכום</a><a href="/category/glass-jars" class="catalog-menu-item" data-category-id="e343d44d-8c77-480e-869f-2fc7e8e1ee01" data-category-slug="glass-jars" dir="rtl">צנצנות זכוכית</a></div></div><div class="catalog-menu-parent" data-category-id="0e73d006-a0ee-4479-b127-3f820ba664cd" data-category-slug="landscaping-and-storage"><a href="/category/landscaping-and-storage" class="catalog-menu-item catalog-menu-trigger" dir="rtl">נוי ואחסון  <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/similarcomparable-services" class="catalog-menu-item" data-category-id="552b1b0a-a859-4ae3-b5fa-8911ad05f832" data-category-slug="similarcomparable-services" dir="rtl">הדומים</a><a href="/category/decorative-stands" class="catalog-menu-item" data-category-id="b2604485-ed4b-48c1-adb7-e0b318620b16" data-category-slug="decorative-stands" dir="rtl">מעמדים דקורטיבים </a><a href="/category/storage-baskets" class="catalog-menu-item" data-category-id="2f6e5cda-b035-4b0a-be50-63da4b1f2422" data-category-slug="storage-baskets" dir="rtl">סלסלות אחסון</a><a href="/category/service-carts" class="catalog-menu-item" data-category-id="c33ec434-30f9-4767-9187-cc0cd666b44e" data-category-slug="service-carts" dir="rtl">עגלות שירות </a></div></div><div class="catalog-menu-parent" data-category-id="cfae8799-1f2f-452e-a7bd-119ed7d468b4" data-category-slug="textile"><a href="/category/textile" class="catalog-menu-item catalog-menu-trigger" dir="rtl">טקסטיל <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/curtains" class="catalog-menu-item" data-category-id="05e893da-df8a-4546-b089-94d2f1e1ad43" data-category-slug="curtains" dir="rtl">וילונות</a><a href="/category/sleep-pillows" class="catalog-menu-item" data-category-id="f19aef4f-cde8-485b-9683-296ddc8e812f" data-category-slug="sleep-pillows" dir="rtl">כריות שינה</a><a href="/category/towels" class="catalog-menu-item" data-category-id="6fbe2edc-7c5a-43a9-aa4b-c75c2cacf332" data-category-slug="towels" dir="rtl">מגבות</a><a href="/category/mattress-protectors" class="catalog-menu-item" data-category-id="83f1fe25-eea4-45e5-ba57-9dce22779179" data-category-slug="mattress-protectors" dir="rtl">מגני מזרון</a><a href="/category/table-linens" class="catalog-menu-item" data-category-id="57816adb-2978-4999-bc2f-58f88940c1e1" data-category-slug="table-linens" dir="rtl">מפות שולחן</a><a href="/category/100-cotton-sheets" class="catalog-menu-item" data-category-id="7791df13-12f7-43bf-95eb-98a9291fb8ba" data-category-slug="100-cotton-sheets" dir="rtl">סדינים 100% כותנה </a><a href="/category/cotton-bedding-set" class="catalog-menu-item" data-category-id="7cfffc44-29d0-48dd-842d-2a34245cc0b7" data-category-slug="cotton-bedding-set" dir="rtl">סט מצעים 100% כותנה</a></div></div><div class="catalog-menu-parent" data-category-id="cd580aef-3057-4bb9-ac31-688702ae3ea2" data-category-slug="carpets"><a href="/category/carpets" class="catalog-menu-item catalog-menu-trigger" dir="rtl">שטיחים <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/bath-mats-" class="catalog-menu-item" data-category-id="f5e120e5-819f-4696-b110-c9e2cbb5da59" data-category-slug="bath-mats-" dir="rtl">שטיחי אמבטיה </a><a href="/category/kitchen-rugs" class="catalog-menu-item" data-category-id="de785b47-6a12-4e86-8168-e0f9fdb90acc" data-category-slug="kitchen-rugs" dir="rtl">שטיחי מטבח</a><a href="/category/living-room-rugs" class="catalog-menu-item" data-category-id="82b4f5be-34e4-44cf-8ee6-8997ae417745" data-category-slug="living-room-rugs" dir="rtl">שטיחי סלון</a></div></div><div class="catalog-menu-parent" data-category-id="1df3c581-8d93-469c-9163-208ce636349d" data-category-slug="blankets"><a href="/category/blankets" class="catalog-menu-item catalog-menu-trigger" dir="rtl">שמיכות <svg class="catalog-menu-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a><div class="sub-menu" dir="rtl"><a href="/category/winter-blankets" class="catalog-menu-item" data-category-id="37da7eb0-ff55-4866-88fa-a682db51fbbd" data-category-slug="winter-blankets" dir="rtl">שמיכות חורף</a><a href="/category/down-comforters" class="catalog-menu-item" data-category-id="2fdcb610-d0bb-44bd-87e3-5f49cbf5058d" data-category-slug="down-comforters" dir="rtl">שמיכות פוך </a><a href="/category/summer-blankets" class="catalog-menu-item" data-category-id="b7ef8369-146e-481c-9424-3d2a2c0235c0" data-category-slug="summer-blankets" dir="rtl">שמיכות קיץ </a></div></div><a href="/category/luggage" class="catalog-menu-item" data-category-id="b990e9a3-5bf8-44c7-8ed6-b3d2ed1d9968" data-category-slug="luggage" dir="rtl">מזוודות </a><a href="/category/laundry-facilities" class="catalog-menu-item" data-category-id="fddd5fda-04e2-445c-bee9-55fd642c178d" data-category-slug="laundry-facilities" dir="rtl">מתקני כביסה</a><a href="/category/tyroler" class="catalog-menu-item" data-category-id="6848ff35-a0fd-45c3-86da-03aae849b0cc" data-category-slug="tyroler" dir="rtl">טירולר</a><a href="/category/general" class="catalog-menu-item" data-category-id="ffae4f0a-d3a0-4f90-84f9-d60ac67e8260" data-category-slug="general" dir="rtl">כללי</a><a href="/category/mirrors-and-frames" class="catalog-menu-item" data-category-id="8dd57b6d-03f2-4be7-a60d-47e378afcd2f" data-category-slug="mirrors-and-frames" dir="rtl">מראות ומסגרות</a><a href="/category/summer" class="catalog-menu-item" data-category-id="1c13e693-ecaf-41f0-9be1-7e70d7dc75ee" data-category-slug="summer" dir="rtl">קיץ</a><a href="/category/electrical-products" class="catalog-menu-item" data-category-id="8908dc4f-0346-4fd7-93a8-76c32ab65e23" data-category-slug="electrical-products" dir="rtl">מוצרי חשמל</a></div>
+      </div>
+    </nav>
+  
+<script>
+
+// Navbar Mobile Menu Toggle and Contrast Fix
+(function() {
+  // Use 'load' event instead of 'DOMContentLoaded' to ensure we run AFTER all other scripts
+  window.addEventListener('load', function() {
+    
+    // FIX MOBILE BUTTON CONTRAST
+    // Detect navbar background color and apply contrasting color to mobile buttons
+    const navbar = document.querySelector('.navbar, nav, header');
+    if (!navbar) {
+      console.log('[Navbar] Navbar element not found');
+      return;
+    }
+    
+    // DECLARE VARIABLES EARLY to avoid Temporal Dead Zone errors
+    // These are used in multiple places below
+    let mobileToggle = document.getElementById('mobileToggle') ||
+                       document.querySelector('.mobile-toggle') ||
+                       document.querySelector('.hamburger') ||
+                       document.querySelector('.hamburger-menu') ||
+                       document.querySelector('.menu-toggle') ||
+                       document.querySelector('.burger-menu') ||
+                       document.querySelector('[aria-label="Menu"]') ||
+                       document.querySelector('[aria-label="תפריט"]');
+    
+    const phoneBtn = document.querySelector('.phone-header-btn');
+    
+    const computedStyle = window.getComputedStyle(navbar);
+    let bgColor = computedStyle.backgroundColor;
+    
+    console.log('[Navbar] Initial navbar background:', bgColor);
+    
+    // Check if background is transparent or rgba with 0 alpha
+    const isTransparent = bgColor === 'transparent' || 
+                         bgColor === 'rgba(0, 0, 0, 0)' ||
+                         (bgColor.startsWith('rgba') && bgColor.includes(', 0)'));
+    
+    if (isTransparent) {
+      // Check for background-image or gradient
+      const bgImage = computedStyle.backgroundImage;
+      if (bgImage && bgImage !== 'none') {
+        console.log('[Navbar] Navbar has background image/gradient, using dark text');
+        bgColor = 'rgb(240, 240, 240)'; // Assume light background
+      } else {
+        // Transparent navbar - check body background
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        console.log('[Navbar] Navbar transparent, using body background:', bodyBg);
+        bgColor = bodyBg;
+      }
+    }
+    
+    // Calculate luminance to determine if background is light or dark
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb && rgb.length >= 3) {
+      const r = parseInt(rgb[0]);
+      const g = parseInt(rgb[1]);
+      const b = parseInt(rgb[2]);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      
+      // Mobile button colors are set by Claude's AI-generated CSS (same as .nav-menu a)
+      // No dynamic color overrides needed - colors come from the generated navbar CSS
+      console.log('[Navbar] Mobile button colors preserved from Claude CSS (luminance:', luminance.toFixed(2) + ')');
+      
+      // FIX ICON SIZES - Ensure SVGs are properly sized and visible
+      // INJECT CRITICAL CSS TO OVERRIDE ANY CONFLICTING RULES
+      const criticalCSS = document.createElement('style');
+      criticalCSS.id = 'zappy-mobile-nav-fix';
+      const htmlLang = document.documentElement.lang || 'en';
+      const htmlDir = document.documentElement.dir || 'ltr';
+      // Check both dir attribute AND lang for RTL detection
+      // dir="rtl" is the most reliable indicator
+      const isRTL = htmlDir === 'rtl' || htmlLang === 'he' || htmlLang === 'ar';
+      
+      criticalCSS.textContent = `
+        /* Hide mobile buttons on desktop, show only on mobile */
+        @media (min-width: 769px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            display: none !important;
+          }
+        }
+        
+        /* Show and position mobile buttons correctly on mobile */
+        @media (max-width: 768px) {
+          .navbar,
+          nav.navbar {
+            min-height: 70px !important;
+          }
+
+          .mobile-toggle,
+          .phone-header-btn {
+            position: absolute !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            margin-top: auto !important;
+            margin-bottom: auto !important;
+            transform: none !important;
+            z-index: 1001 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 6px !important;
+            background: none !important;
+            color: var(--nav-text, var(--text-light)) !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+          }
+
+          html[data-zappy-site-type="ecommerce"] .phone-header-btn,
+          body[data-zappy-site-type="ecommerce"] .phone-header-btn,
+          html[data-zappy-site-type="ecommerce"] header .phone-header-btn,
+          html[data-zappy-site-type="ecommerce"] nav .phone-header-btn {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+          }
+          
+          /* LTR positioning (default): hamburger LEFT, phone RIGHT */
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .mobile-toggle,
+          html[dir="ltr"] .mobile-toggle {
+            left: 12px !important;
+            right: auto !important;
+          }
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .phone-header-btn,
+          html[dir="ltr"] .phone-header-btn {
+            right: 12px !important;
+            left: auto !important;
+          }
+          
+          /* RTL positioning: hamburger RIGHT, phone LEFT */
+          html[dir="rtl"] .mobile-toggle,
+          html[lang="he"] .mobile-toggle,
+          html[lang="ar"] .mobile-toggle {
+            right: 12px !important;
+            left: auto !important;
+          }
+          html[dir="rtl"] .phone-header-btn,
+          html[lang="he"] .phone-header-btn,
+          html[lang="ar"] .phone-header-btn {
+            left: 12px !important;
+            right: auto !important;
+          }
+          
+          /* CRITICAL: Ensure nav-container has min-height on mobile */
+          /* All children are positioned absolutely/fixed on mobile, so height:auto collapses to 0 */
+          .nav-container {
+            min-height: 70px !important;
+            position: relative !important;
+          }
+          
+          /* Ensure SVG icons are properly sized and inherit color */
+          .mobile-toggle svg,
+          .phone-header-btn svg {
+            width: 24px !important;
+            height: 24px !important;
+            /* Don't force display - let JavaScript control hamburger/close toggle */
+          }
+          
+          /* Reset nav-cta-container on mobile - remove desktop box-shadow/padding */
+          /* that creates a visible ghost box when CTA button is hidden */
+          .nav-cta-container {
+            box-shadow: none !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide nav-cta-container entirely on mobile when there's no lang-switcher */
+          /* (only the CTA button is inside, and it's hidden on mobile) */
+          .nav-cta-container:not(:has(.lang-switcher)) {
+            display: none !important;
+          }
+          
+          /* CRITICAL: Prevent hero image fade gradient from bleeding over headline text */
+          /* The .image-fade-gradient has bottom: -30px (extends below parent) */
+          /* On mobile stacked layout, this overlaps the h1 text below the image */
+          .hero-image-column {
+            overflow: hidden !important;
+          }
+          .image-fade-gradient {
+            bottom: 0 !important;
+          }
+          
+          /* Hide desktop language switcher on mobile - hamburger menu handles it */
+          /* High specificity to override stored CSS */
+          .lang-switcher,
+          .nav-cta-container .lang-switcher,
+          .nav-container .lang-switcher,
+          .navbar .lang-switcher,
+          .navbar .nav-cta-container .lang-switcher {
+            display: none !important;
+          }
+        }
+      `;
+      
+      // Remove existing fix if present and inject new one
+      const existing = document.getElementById('zappy-mobile-nav-fix');
+      if (existing) existing.remove();
+      document.head.appendChild(criticalCSS);
+      
+      console.log('[Navbar] Critical CSS injected for mobile nav positioning');
+      
+      // ONLY apply inline positioning styles on mobile viewport
+      // On desktop, the CSS handles hiding these buttons with display: none
+      // Inline styles were breaking desktop layout by overriding CSS
+      const isMobileViewport = window.innerWidth <= 768;
+      
+      if (mobileToggle) {
+        // Icon sizing applies to all viewports for consistency
+        const hamburgerIcon = mobileToggle.querySelector('.hamburger-icon');
+        const closeIcon = mobileToggle.querySelector('.close-icon');
+        
+        if (hamburgerIcon) {
+          hamburgerIcon.style.setProperty('width', '24px', 'important');
+          hamburgerIcon.style.setProperty('height', '24px', 'important');
+          hamburgerIcon.style.setProperty('display', 'block', 'important'); // Show hamburger by default
+        }
+        if (closeIcon) {
+          closeIcon.style.setProperty('width', '24px', 'important');
+          closeIcon.style.setProperty('height', '24px', 'important');
+          closeIcon.style.setProperty('display', 'none', 'important'); // Hide close icon by default
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          mobileToggle.style.setProperty('position', 'absolute', 'important');
+          mobileToggle.style.setProperty('top', '0', 'important');
+          mobileToggle.style.setProperty('bottom', '0', 'important');
+          mobileToggle.style.setProperty('margin-top', 'auto', 'important');
+          mobileToggle.style.setProperty('margin-bottom', 'auto', 'important');
+          mobileToggle.style.setProperty('transform', 'none', 'important');
+          mobileToggle.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          
+          console.log('[Navbar] Mobile toggle positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          mobileToggle.style.removeProperty('position');
+          mobileToggle.style.removeProperty('top');
+          mobileToggle.style.removeProperty('transform');
+          mobileToggle.style.removeProperty('z-index');
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared mobile toggle inline positioning');
+        }
+      }
+      
+      if (phoneBtn) {
+        // Icon sizing applies to all viewports
+        const phoneIcon = phoneBtn.querySelector('svg');
+        if (phoneIcon) {
+          phoneIcon.style.width = '24px';
+          phoneIcon.style.height = '24px';
+          phoneIcon.setAttribute('width', '24');
+          phoneIcon.setAttribute('height', '24');
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          phoneBtn.style.setProperty('position', 'absolute', 'important');
+          phoneBtn.style.setProperty('top', '0', 'important');
+          phoneBtn.style.setProperty('bottom', '0', 'important');
+          phoneBtn.style.setProperty('margin-top', 'auto', 'important');
+          phoneBtn.style.setProperty('margin-bottom', 'auto', 'important');
+          phoneBtn.style.setProperty('transform', 'none', 'important');
+          phoneBtn.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          
+          console.log('[Navbar] Phone button positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          phoneBtn.style.removeProperty('position');
+          phoneBtn.style.removeProperty('top');
+          phoneBtn.style.removeProperty('transform');
+          phoneBtn.style.removeProperty('z-index');
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared phone button inline positioning');
+        }
+      }
+    } else {
+      console.log('[Navbar] Could not parse background color:', bgColor);
+    }
+    
+    // MOBILE MENU TOGGLE
+    // Re-query in case DOM changed (mobileToggle already declared at top of function)
+    mobileToggle = document.getElementById('mobileToggle') ||
+                   document.querySelector('.mobile-toggle') ||
+                   document.querySelector('.hamburger') ||
+                   document.querySelector('.hamburger-menu') ||
+                   document.querySelector('.menu-toggle') ||
+                   document.querySelector('.burger-menu') ||
+                   document.querySelector('[aria-label="Menu"]') ||
+                   document.querySelector('[aria-label="תפריט"]');
+    
+    // EXPANDED SEARCH: Find nav menu by ID or class
+    const navMenu = document.getElementById('navMenu') ||
+                  document.querySelector('.nav-menu') ||
+                  document.querySelector('.nav-links') ||
+                  document.querySelector('nav ul:not(.submenu)');
+    
+    if (!mobileToggle || !navMenu) {
+      console.log('[Navbar] Mobile toggle or menu not found:', { toggle: !!mobileToggle, menu: !!navMenu });
+      return;
+    }
+    
+    // Ensure navMenu has ID for CSS targeting
+    if (!navMenu.id) {
+      navMenu.id = 'navMenu';
+    }
+    
+    console.log('[Navbar] Initializing mobile menu...');
+    
+    // Remove any existing event listeners by cloning the button
+    const newToggle = mobileToggle.cloneNode(true);
+    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+    
+    // Toggle menu handler (shared by click and touchend)
+    function handleToggle(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const hamburgerIcon = newToggle.querySelector('.hamburger-icon');
+      const closeIcon = newToggle.querySelector('.close-icon');
+      const isActive = navMenu.classList.contains('active');
+      
+      if (isActive) {
+        // Close menu
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed');
+      } else {
+        // Open menu
+        navMenu.classList.add('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'none', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'block', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('[Navbar] Menu opened');
+      }
+    }
+    
+    // Use click for desktop/emulation and touchend as iOS Safari fallback.
+    // Prevent double-fire with a timestamp guard.
+    var lastToggleTime = 0;
+    function guardedToggle(e) {
+      var now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+      handleToggle(e);
+    }
+    
+    newToggle.addEventListener('click', guardedToggle);
+    newToggle.addEventListener('touchend', guardedToggle);
+    
+    // Close menu when clicking nav links (but NOT dropdown toggles)
+    const navLinks = navMenu.querySelectorAll('a');
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        // Don't close if it's a dropdown child (unless it's a real navigation link)
+        if (this.getAttribute('href') === '#') return;
+        
+        const hamburgerIcon = newToggle.querySelector('.hamburger-icon');
+        const closeIcon = newToggle.querySelector('.close-icon');
+        
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed (link clicked)');
+      });
+    });
+    
+    // DROPDOWN MENU TOGGLE (for mobile and touch devices)
+    var dropdownToggles = navMenu.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(function(toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var parent = this.closest('.nav-dropdown');
+        if (!parent) return;
+        
+        // Close other open dropdowns at the same level
+        var siblings = parent.parentNode.querySelectorAll('.nav-dropdown.open');
+        siblings.forEach(function(sib) {
+          if (sib !== parent) sib.classList.remove('open');
+        });
+        
+        parent.classList.toggle('open');
+        console.log('[Navbar] Dropdown toggled:', parent.classList.contains('open') ? 'open' : 'closed');
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-dropdown')) {
+        var openDropdowns = document.querySelectorAll('.nav-dropdown.open');
+        openDropdowns.forEach(function(dd) { dd.classList.remove('open'); });
+      }
+    });
+    
+    console.log('[Navbar] Dropdown handlers initialized for ' + dropdownToggles.length + ' dropdowns');
+    
+    // Phone button functionality (phoneBtn already declared at top of function)
+    if (phoneBtn) {
+      phoneBtn.addEventListener('click', function() {
+        // Get phone number from placeholder in page or use default
+        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+        const phoneNumber = phoneLinks.length > 0 
+          ? phoneLinks[0].getAttribute('href').replace('tel:', '')
+          : '054-5286728';
+        
+        window.location.href = 'tel:' + phoneNumber;
+        console.log('[Navbar] Phone button clicked');
+      });
+    }
+    
+    console.log('[Navbar] Mobile menu initialized successfully');
+    
+    // WhatsApp button visibility is now controlled via CSS (siteSettings).
+    // No JS-based desktop hiding — the button is visible on both mobile and desktop by default.
+  });
+})();
+
+</script>
+  
+  <main id="main">
+    
+
+
+
+
+
+    
+  
+
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <section data-band-index="0" class="home-hero-section zappy-animated" data-layout-spec="Home-hero" dir="rtl" data-hero-type="fullscreen-scrim" id="home-hero-section" data-zappy-content-align="lower-mid-right" style="animation: 0.6s ease 0s 1 normal forwards running zappy-fade-in; position: relative; overflow: hidden; min-height: 913.955px !important;" data-zappy-animate="fade-in" data-zappy-anim-duration="0.6s" data-zappy-anim-delay="0s" data-zappy-bg-color data-zappy-bg-overlay-color="#0a0a0a" data-zappy-bg-overlay-opacity="0" data-zappy-bg-video-type data-zappy-bg-video-url>
+  <!-- Background Image -->
+  <div class="home-hero-bg"><div id="zappy-carousel-1784120500355-8z7f3q" data-zappy-image-carousel="true" data-zappy-hero-carousel="true" data-interval="5000" class="zappy-carousel-hero"><div class="zappy-carousel-slide" style="opacity: 0 !important; pointer-events: none !important; z-index: 0 !important;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1779607529844-6rttej6hz" data-element-type="image" data-zappy-zoom-wrapper-width-mode="full" style="position: absolute; top: 0px !important; left: 0px !important; width: 100%; height: 100%; max-width: none; margin-left: 0px !important; margin-right: 0px !important; z-index: 1 !important; overflow: hidden; aspect-ratio: 1686 / 770 !important; inset: 0; max-height: none" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-zoom-wrapper-align="center" data-zappy-zoom-wrapper-width="1686px" data-zappy-zoom-wrapper-height="770px"><img loading="eager" fetchpriority="high" data-hero-bg="true" data-placeholder="home-hero-image-1" data-context="Dark cinematic retail environment shot from inside a modern stock/discount home goods store in Israel. Wide-angle view of shelves stocked with household products, kitchen tools, and home goods. Dramatic low-key lighting with warm spotlights illuminating product displays. Dark charcoal and near-black tones dominate. The atmosphere is bold, urban, and premium — like a high-end warehouse store. No people visible. Shot feels editorial and aspirational." width="1400" height="800" src="/assets/site-home-hero-image-1-1784180448559-mi0jp6.webp?v=1784180451738" alt="חנות Street Stock – מגוון מוצרי בית וסטוק במחירים מיוחדים" data-hero-background="true" data-element-type="image" data-element-id="img-1779607529844-6rttej6hz" style="object-position: 50% 50%; object-fit: cover; display: block !important; margin: 0; position: absolute; width: 100%; height: 100%; max-width: none; max-height: none; inset: 0" data-zappy-object-position="50% 50%" data-zappy-mobile-object-position="52% 55%" data-zappy-mobile-zoom="0.6" data-zappy-mobile-src="/assets/image-1784180567239-4y9128.webp?v=1784180570406" data-zappy-original-width="1686.363525390625" data-zappy-original-height="770" data-zappy-zoom="0.6" data-zappy-click-action="link" decoding="async" /></div><a class="zappy-carousel-slide-link" data-zappy-desktop-click-action="link" data-zappy-desktop-href="/category/acrylic" data-zappy-click-action="link" href="/category/acrylic" data-zappy-mobile-click-action="link" data-zappy-mobile-href="/category/acrylic" style="pointer-events: auto;"></a></div><div class="zappy-carousel-slide is-active" style="opacity: 1 !important; pointer-events: auto !important; z-index: 1 !important;"><div data-zappy-zoom-wrapper="true" data-element-id="zc-img-1784184186269-jpkeoh" data-element-type="image" data-zappy-zoom-wrapper-width-mode="full" style="position: absolute !important; top: 0px !important; left: 0px !important; width: 100% !important; height: 100% !important; max-width: none !important; margin-left: 0px !important; margin-right: 0px !important; display: block !important; z-index: 1 !important; overflow: hidden !important;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true"><img src="/assets/street-stock-image-hero-upload-1784188035079-shcxzd.webp?v=1784188041257" alt="חנות Street Stock – מגוון מוצרי בית וסטוק במחירים מיוחדים" data-element-id="zc-img-1784184186269-jpkeoh" data-element-type="image" style="object-position: 50% 50% !important; margin: 0px !important; display: block !important; object-fit: cover; width: 100%; height: 100%;" data-zappy-object-position="50% 50%" data-zappy-mobile-object-position="50% 50%" data-zappy-mobile-zoom="1" data-zappy-mobile-src="/assets/image-1784184405586-pfdmx7.webp?v=1784184409987" data-zappy-zoom="1" decoding="async" /></div><a class="zappy-carousel-slide-link" data-zappy-mobile-click-action="none" data-zappy-click-action="none" style="pointer-events: none;" data-zappy-desktop-click-action="none"></a></div></div><div class="zappy-inserted-element" id="zappy-element-1784099616398-ao52v63s0" data-element-id="zappy-element-1784099616398-ao52v63s0" data-element-type="button" data-zappy-newly-inserted="true" style="margin-top: 20px; margin-bottom: 20px; text-align: center; display: flex; justify-content: center; align-items: flex-start; width: 100% !important; align-self: start !important; height: auto !important;"><a href="#" class="btn btn-primary" style="text-decoration: none; padding: 12px 24px; border-radius: 6px; display: inline-block; border-color: var(--primary-color, var(--primary, #8B0000)) !important; border-style: solid; border-width: 2px; border-image: none; color: rgb(255, 255, 255) !important; width: auto !important; flex: 0 0 auto !important; cursor: pointer !important; background-color: var(--primary-color, var(--primary, #8B0000)) !important; background-image: none !important;" data-element-type="button" data-text-color="auto" data-element-id="zappy-element-1784099616398-ao52v63s0" id="zappy-element-1784099616398-ao52v63s0">לחץ כאן</a></div></div>
+
+  <!-- Scrim Overlay -->
+  <div class="home-hero-scrim" aria-hidden="true" data-zappy-gradient-scrim="true" style="opacity: 0"></div>
+
+  <!-- Text Overlay Group -->
+  <div class="home-hero-content-wrapper" data-zappy-align-target="true">
+    <div class="home-hero-content">
+      
+      
+      
+    </div>
+  </div>
+
+  <!-- Bottom Divider: torn-edge diagonal transition to light section -->
+  <div class="home-hero-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 L0,52 Q60,44 120,56 T240,48 Q300,54 360,44 T480,50 Q540,46 600,54 T720,46 Q780,52 840,44 T960,50 Q1020,44 1080,52 T1200,46 Q1280,54 1320,46 L1440,54 L1440,90 Z" fill="var(--bg-light)"/>
+    </svg>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="layout-1780568540748" class="layout-section zappy-animated" data-zappy-component="true" style="width: 100%; padding: 60px 0px; direction: rtl; animation: 0.6s ease 0s 1 normal forwards running zappy-slide-up;" data-component-id="imagecard-3col-cta" data-zappy-animate="slide-up" data-zappy-anim-duration="0.6s" data-zappy-anim-delay="0s"><button title="תפריט נגישות" tabindex="1" id="mic-access-tool-general-button" class="mic-access-tool-general-button btn btn-ghost" data-element-type="button" data-element-id="btn-1781509879165-3m8x2if4j" data-native-element="true" style="font-size: 0px; color: rgb(59, 130, 246) !important; border-color: transparent !important; background-color: transparent !important; background-image: none !important;"><div style="font-size: 0px;"><span style="font-size: 11px;">CTRL+F2</span> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAA+VBMVEUAAAAuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHEuzHF74uanAAAAUnRSTlMAAQMEBwgKCwwNDg8QERIVGhscHR8gJicqLzU2OTpFRklKTE1QUVVWXF1kZmtscHFzdXt/goORmJqdnqOlqrm6vL7AwcfIytPa3ODi5Ojz9fn7dlsVJQAAAU5JREFUOMvt08lSwkAUheETwIGIoqKIE4oogwMKziKoKCCDA//7P4yLhEq00mFhlSvvqk/ypXP7piL9rHOAc02sNQBYmwhrDqz9Bs4MD5Nhr04eDaclSWWgV5oPPsx8uQeUJEmpOgDdgu3uWau5+9mFLgD1lPuYXfkEoJ2f8XWU7wDwWYn7+ozsvDq9PWWnJGkq23Lyazby80zphnOL5tVV01020oGTSVRH+GpUnTMOMZrzXC4aOm8PTvgw//Bvoe1BOxTmARIJgL1Q+AjUpXvgIczFAFakVYBYCNwGOpLUAbZC4B2wIUmbwK3ZRYA3S5KsNyBihBlg31keABkjvISR+wNER3BhctYHnI7DGbxbBpgCZschDiwb4Alce+kGjg1wAIteWoJ+sFuAlj8/w0IgLMK6P69DIRC26X87pjXgJXjH/u73C7l+0TTIkPgFhXx2Xm9a0zIAAAAASUVORK5CYII=" alt="תפריט נגישות" loading="lazy" decoding="async" fetchpriority="low" /></div></button>
+  <div class="container" style="max-width: 1200px; margin: 0px auto; padding: 0px 1.5rem; font-size: 16px;">
+  <h2 style="font-size: 32px; font-weight: 700; color: rgb(31, 41, 55); margin-bottom: 40px; text-align: right;">עולמות הקנייה שלנו</h2>
+  <div class="image-card-grid zappy-preserve-css-grid" style="display: grid; gap: 30px; --zappy-grid-cols: repeat(3, minmax(0, 1fr)); grid-template-columns: repeat(3, minmax(0px, 1fr)); align-items: stretch !important; font-size: 16px;" id="zappy-auto-grid-1780568541751-vwh5n4" data-zappy-auto-grid="true" data-original-item-width="364" data-original-gap="30px" data-zappy-explicit-columns="true">
+    
+    <div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; overflow: hidden !important; font-size: 16px;" data-grid-item-index="0">
+      <a data-zappy-click-action="link" href="/category/acrylic" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-alxfajl4o" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="228px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 228px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-26x0nnpol" data-context="תיאור תמונה 2" src="/assets/image-layout-image-1780568540748-9bblp00nc-1780571038921-b1bn5b.webp" alt="תיאור תמונה 2" style="border-radius: 8px; display: block !important; object-fit: fill !important; width: 100% !important; height: 100% !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-alxfajl4o" data-zappy-original-width="364.01043701171875" data-zappy-original-height="227.50001525878906" data-zappy-object-position="50% 50%" data-zappy-zoom="0.5" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px;"><span style="font-size: 22px; outline: none; color: #231f20 !important"><a href="/category/acrylic" style="color: rgb(153, 213, 46); cursor: pointer;"><span style="color: #231f20 !important">אקריל</span></a></span></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8;"><a href="/category/pots-and-pans" style="color: rgb(153, 213, 46); font-size: 16px; outline: none;" data-native-element="true" data-element-id="btn-1782316372897-ffxkpu7gh" data-element-type="button"></a><a href="https://streetstock.co.il/category/acrylic" data-element-id="btn-1780832965890-gyhuw4836" data-element-type="button" data-native-element="true" style="color: rgb(153, 213, 46); transition: 0.2s; outline: none;"><span style="color: rgb(35, 31, 32) !important;">ארגוניות | צנצנות | מוצרים</span></a></p>
+        </div>
+    </div>
+    <div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="1">
+      <a data-zappy-click-action="link" href="/category/pots-and-pans" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-alxfajl4o-dup-1782316332278-jm3k22" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="228px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 228px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-26x0nnpol" data-context="תיאור תמונה 2" src="/assets/image-layout-image-1780568540748-26x0nnpol-1780573130725-k5a8gt.webp?v=1780573133153" alt="תיאור תמונה 2" style="border-radius: 8px; display: block !important; width: 100% !important; height: 100% !important; object-fit: fill !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important; cursor: pointer" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-alxfajl4o-dup-1782316332278-jm3k22" data-zappy-original-width="364.01043701171875" data-zappy-original-height="227.50001525878906" data-zappy-object-position="50% 50%" data-zappy-zoom="0.5" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/pots-and-pans" style="color: rgb(153, 213, 46); font-size: 22px; outline: none;" data-native-element="true" data-element-id="btn-1782316318042-80uwit72y-dup-1782316332278-jm3k22" data-element-type="button"><span style="color: rgb(35, 31, 32) !important; font-size: 22px;">סירים ומחבתות</span></a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/pots-and-pans" style="color: rgb(153, 213, 46); cursor: pointer; font-size: 16px;"><span style="outline: none; color: rgb(0, 0, 0) !important; font-size: 16px;"></span><span style="color: rgb(35, 31, 32) !important; font-size: 16px;"><span style="outline: none; font-size: 16px;">סירים |&nbsp;</span>מחבתות</span></a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; overflow: hidden !important; font-size: 16px;" data-grid-item-index="2">
+      <a data-zappy-click-action="link" href="/category/trash-cans" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1780573679127-pv8824.webp?v=1780573682415" alt="תיאור תמונה 3" style="border-radius: 8px; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px;"><a href="/category/trash-cans" style="color: rgb(153, 213, 46); cursor: pointer;"><span style="color: rgb(35, 31, 32) !important;">פחים</span></a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8;"><a href="/category/trash-cans" style="color: rgb(153, 213, 46); cursor: pointer; font-size: 16px;"><span style="color: rgb(35, 31, 32) !important; font-size: 16px;">פחי מטבח | פחי שירותים ואמבטיה</span></a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="3">
+      <a data-zappy-click-action="link" href="/category/bathtub" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782312777262-e3j9hs.webp?v=1782312779646" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/bathtub" style="color: rgb(153, 213, 46); cursor: pointer;"><span style="color: rgb(35, 31, 32) !important;">אמבטיה</span></a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/bathtub" style="color: rgb(153, 213, 46); cursor: pointer;"><span style="color: rgb(35, 31, 32) !important;">&nbsp; דיספנסרים | שטיחים | וילונות | מוצרים&nbsp;&nbsp;</span></a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="4">
+      <a data-zappy-click-action="link" href="/category/housewares" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782312849186-kqibcy.webp?v=1782312851613" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/housewares" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+<span style="color: rgb(35, 31, 32) !important;">כלי בית</span>
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/housewares" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+<span style="color: rgb(35, 31, 32) !important;">צנצנות זכוכית | כוסות וקנקנים | מייבשי כלים | צלחות | סכום | סכיני מטבח</span>
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="5">
+      <a data-zappy-click-action="link" href="/category/landscaping-and-storage" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313071122-5d0stf.webp?v=1782313074066" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/landscaping-and-storage" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">נוי ואחסון</span>
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/landscaping-and-storage" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">הדומים | עגלות שירות | סלסלות | מעמדים דקורטיביים</span>
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="6">
+      <a data-zappy-click-action="link" href="/category/carpets" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313424278-b1vl2h.webp?v=1782313435268" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/carpets" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">שטיחים</span>
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/carpets" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">שטיחי מטבח | שטיחי אמבטיה | שטיחי סלון</span>
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="7">
+      <a data-zappy-click-action="link" href="/category/blankets" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313604747-tqum0w.webp?v=1782313609589" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/blankets" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">שמיכות</span> 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/blankets" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">שמיכות פוך | שמיכות קיץ | שמיכות חורף</span>
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="8">
+      <a data-zappy-click-action="link" href="/category/luggage" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313804139-u4glch.webp?v=1782313807263" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/luggage" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">מזוודות</span>
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/luggage" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">סט מזוודות | מזוודות בכל הגדלים</span>
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="9">
+      <a data-zappy-click-action="link" href="/category/textile" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313906194-2tp0dk.webp?v=1782313909318" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/textile" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: rgb(35, 31, 32) !important;">טקסטיל</span>
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/textile" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">סטים מצעים | סדינים | מגני מזרן | כריות שינה | וילונות</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="10">
+      <a data-zappy-click-action="link" href="/category/laundry-facilities" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782313987199-r16xoz.webp?v=1782313990246" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/laundry-facilities" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מתקני כביסה</span>
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/laundry-facilities" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מתקני פלסטיק | מתקני אלומיניום | מתקנים מתכווננים</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="11">
+      <a data-zappy-click-action="link" href="/category/tyroler" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782314131157-fr01ox.webp?v=1782314134111" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 56% 100% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="56% 100%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/tyroler" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">טירולר</span>
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/tyroler" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מטאטא | מגב | מבריקן | מנקה חלונות</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="12">
+      <a data-zappy-click-action="link" href="/category/general" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315430471-lba3rw" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782315483294-xsl5pk.webp?v=1782315486467" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315430471-lba3rw" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/general" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">כללי</span>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="13">
+      <a data-zappy-click-action="link" href="/category/summer" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-layout-image-1780568540748-i483c3iru-1782315584225-aitkfj.webp?v=1782315587008" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin-top: 0px !important; margin-bottom: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/mirrors-and-frames" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מראות ומסגרות תמונה</span>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/mirrors-and-frames" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מראות מעוצבות | מסגרות תמונה</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="14">
+      <a data-zappy-click-action="link" href="/category/summer" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh-dup-1782315614444-v6e49b" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-category-image-1780579574487-usir5k.webp" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 50% 50% !important; max-width: none !important; margin-top: 0px !important; margin-bottom: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh-dup-1782315614444-v6e49b" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="50% 50%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/summer" style="color: rgb(153, 213, 46); cursor: pointer;"><span style="color: rgb(35, 31, 32) !important;"><span style="color: rgb(35, 31, 32) !important;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+קיץ
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</span></span></a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/summer" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">כיסאות מתקפלים | צידניות | מחצלות</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div><div style="background: white; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 8px; display: flex; flex-direction: column; font-size: 16px; overflow: hidden !important; grid-area: auto !important;" data-grid-item-index="15">
+      <a data-zappy-click-action="link" href="/category/tyroler" style="text-decoration: none; color: inherit; display: contents; font-size: 16px;"><div data-zappy-zoom-wrapper="true" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh-dup-1782315614444-v6e49b-dup-1782315670734-qtjv20" data-element-type="image" data-zappy-zoom-wrapper-width="364px" data-zappy-zoom-wrapper-height="227px" data-zappy-zoom-wrapper-width-mode="px" data-zappy-zoom-wrapper-align="center" style="cursor: pointer; position: relative !important; overflow: hidden !important; width: 364px !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; height: 227px !important; display: block !important; font-size: 16px;" data-zappy-zoom-clip="true" data-zappy-wrapper-margins-applied="true" data-zappy-click-action="link"><img data-placeholder="layout-image-1780568540748-i483c3iru" data-context="תיאור תמונה 3" src="/assets/image-image-placeholder-1780579051616-7prk1d.webp" alt="תיאור תמונה 3" style="border-radius: 8px; cursor: pointer; display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: 100% 88% !important; max-width: none !important; margin: 0px !important; left: 0% !important; top: 0% !important; max-height: none !important; position: absolute !important" class="layout-placeholder-image" data-element-type="image" data-element-id="img-1780568541749-pk998cz1g-dup-1782312469444-ifytqz-dup-1782312798476-u8fc0c-dup-1782312995901-p1n87u-dup-1782313207897-1kqnt3-dup-1782313328533-ig84af-dup-1782313460841-tshl38-dup-1782313745925-favhe8-dup-1782313828384-e65jby-dup-1782313928033-wonkbv-dup-1782314029122-gnqdue-dup-1782315517465-08n7hh-dup-1782315614444-v6e49b-dup-1782315670734-qtjv20" data-zappy-original-width="363.9930725097656" data-zappy-original-height="227.48265075683594" data-zappy-object-position="100% 88%" data-zappy-zoom="1" data-zappy-click-action="link" loading="lazy" decoding="async" fetchpriority="low" /></div></a>
+      <div style="padding: 24px; flex: 1 1 0%; display: flex; flex-direction: column; font-size: 16px;">
+        <h3 style="font-size: 22px; font-weight: 600; color: rgb(31, 41, 55); margin-bottom: 10px; "><a href="/category/electrical-products" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">מוצרי חשמל</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+</a></h3>
+        <p style="font-size: 16px; line-height: 1.6; color: rgb(31, 41, 55); opacity: 0.8; "><a href="/category/electrical-products" style="color: rgb(153, 213, 46); cursor: pointer;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style="color: #231f20 !important">טוסטרים | קומקומים | פלטות שבת | ועוד</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</a></p>
+        </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="featured-products-section" id="featured-products" data-zappy-dynamic="true">
+      <div class="container">
+        <h2 class="section-title">מוצרים מומלצים</h2>
+        <div class="product-grid featured-grid" id="zappy-featured-products"><div class="no-featured-products">עוד לא נבחרו מוצרים מומלצים. צפו בכל המוצרים שלנו!</div></div>
+        <div class="view-all-products" style="text-align: center !important; display: flex !important; justify-content: center !important; align-items: flex-start !important; width: 100% !important;">
+          <a href="/products" class="btn btn-primary" style="color: rgb(255, 255, 255) !important; outline: none; border-color: rgb(153, 213, 46) !important; background-color: rgb(153, 213, 46) !important; background-image: none !important;" data-element-type="button" data-element-id="btn-1780416015976-vzg47kdbv" data-native-element="true">צפה בכל המוצרים →</a>
+        </div>
+      </div>
+    </section></main>
+  
+  <footer class="site-footer" dir="rtl">
+  <div class="footer-main">
+    <div class="footer-container">
+      <div class="footer-grid">
+
+        <!-- Column 1: Company Info -->
+        <div class="footer-col footer-col--brand">
+          <div class="footer-logo-wrap">
+            <img src="/assets/street-stock-logo.webp" alt="Street Stock" class="logo" data-element-type="image" data-element-id="img-1781003202161-bo7mpfjtt" data-zappy-footer-image="true" decoding="async" width="35" height="35" />
+          </div>
+          <p class="footer-tagline">המקום שלך למוצרי בית במחירים שלא תאמין. איכות אמיתית, ערך אמיתי.</p>
+          <div class="footer-social"><a href="https://instagram.com/street.stock1" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" data-element-type="icon" data-element-id="icon-1782647003037-7cs4jlymq" data-icon-type="fontawesome"></i></a><a href="https://wa.me/972545286728" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp" data-element-type="icon" data-element-id="icon-1782647003037-bo0po6rny" data-icon-type="fontawesome"></i></a></div>
+        </div>
+
+        <!-- Column 2: Quick Links -->
+        <div class="footer-col">
+          <h3 class="footer-heading"><span class="footer-heading-accent"></span>ניווט מהיר</h3>
+          <ul class="footer-links">
+            <li><a href="/">דף הבית</a></li>
+            
+            <li><a href="/about">אודות Street Stock</a></li>
+            <li><a href="/contact-us">צרו קשר</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Contact Info -->
+        <div class="footer-col">
+          <h3 class="footer-heading"><span class="footer-heading-accent"></span>יצירת קשר</h3>
+          <ul class="footer-contact">
+            <li>
+              <span class="contact-icon"><i class="fas fa-envelope" data-element-type="icon" data-element-id="icon-1782647003037-zu0s6p920" data-icon-type="fontawesome"></i></span>
+              <span class="contact-text"><a href="mailto:streetstock247@gmail.com">streetstock247@gmail.com</a></span>
+            </li>
+            <li>
+              <span class="contact-icon"><i class="fas fa-phone" data-element-type="icon" data-element-id="icon-1782647003037-hpj74ss8j" data-icon-type="fontawesome"></i></span>
+              <span class="contact-text"><a href="tel:054-5286728">054-5286728</a></span>
+            </li>
+            <li><a href="https://www.google.com/maps/search/?api=1&amp;query=%D7%90%D7%9C%D7%99%20%D7%9B%D7%94%D7%9F%2043%2C%20%D7%90%D7%A9%D7%A7%D7%9C%D7%95%D7%9F%2C%20%D7%93%D7%A8%D7%95%D7%9D%2C%20Israel" style="display: flex; align-items: flex-start; gap: inherit; color: rgb(153, 213, 46); text-decoration: underline; cursor: pointer;" target="_blank" rel="noopener noreferrer"><span class="contact-icon"><i class="fas fa-map-marker-alt" style="cursor: pointer;"></i></span>
+              <span class="contact-text">אלי כהן 43, אשקלון, דרום, Israel</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Hours / Extra -->
+        <div class="footer-col">
+          <h3 class="footer-heading"><span class="footer-heading-accent"></span>שעות פעילות</h3>
+          <ul class="footer-hours"><li><a href="/"><span class="hours-day">ימים א’–ה’</span> <span class="hours-time">21:00–08:30</span></a></li>
+<li><a href="/"><span class="hours-day">יום ו’</span> <span class="hours-time">16:00–08:30</span></a></li>
+<li><a href="/"><span class="hours-day">שבת</span> <span class="hours-time">סגור</span></a></li></ul>
+          <div class="footer-badge">משלוחים לכל הארץ</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <div class="footer-container">
+      <div class="footer-bottom-inner">
+        <p class="footer-copyright">© 2026 Street Stock. כל הזכויות שמורות.</p>
+        <div class="footer-legal">
+          <a href="/privacy">מדיניות פרטיות</a>
+          <span class="footer-divider">|</span>
+          <a href="/terms">תנאי שימוש</a><span class="separator" style="color: rgb(245, 245, 242) !important;">|</span>
+            <a href="/return-policy" aria-label="מדיניות החזרות">
+              מדיניות החזרות
+            </a>
+          <span class="footer-divider">|</span>
+          <a href="/shipping-policy" aria-label="מדיניות משלוחים">מדיניות משלוחים</a>
+          <span class="footer-divider">|</span>
+          <a href="/accessibility">נגישות</a>
+          <span class="footer-divider">|</span>
+          <a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות NEMO-DS</a>
+        <span class="separator" style="color: rgb(245, 245, 242) !important;">|</span>
+            <a href="/shipping-policy" aria-label="מדיניות משלוחים"><br /><br /></a></div>
+      </div>
+    </div>
+  </div>
+</footer>
+  
+  <a href="https://wa.me/972545286728" class="whatsapp-float" aria-label="WhatsApp" style="display:none">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+<div class="zappy-qv-overlay" id="zappy-qv-overlay" hidden></div>
+<div class="zappy-qv-modal" id="zappy-qv-modal" role="dialog" aria-modal="true" aria-label="תצוגה מהירה" hidden>
+  <button type="button" class="zappy-qv-close" id="zappy-qv-close" aria-label="סגור">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="zappy-qv-content" id="zappy-qv-content"></div>
+</div>
+<script data-zappy-animation-observer>(function() {
+  if (window.__zappyAnimObserver) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var anim = el.getAttribute('data-zappy-animate');
+        var dur = el.getAttribute('data-zappy-anim-duration') || '0.6s';
+        var del = el.getAttribute('data-zappy-anim-delay') || '0s';
+        el.style.animation = 'zappy-' + anim + ' ' + dur + ' ' + del + ' ease forwards';
+        el.classList.add('zappy-animated');
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('[data-zappy-animate]').forEach(function(el) {
+    observer.observe(el);
+  });
+  window.__zappyAnimObserver = observer;
+})();</script>
+
+
+    
+
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-font-awesome-loader">
+(function(){if(window.__zappyFontAwesomeLoader)return;window.__zappyFontAwesomeLoader=true;var href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';function load(){if(document.querySelector('link[href*="font-awesome"][href*="all.min.css"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href=href;l.crossOrigin='anonymous';l.referrerPolicy='no-referrer';document.head.appendChild(l);}function schedule(){if('requestIdleCallback'in window){requestIdleCallback(load,{timeout:5000});}else{setTimeout(load,3500);}}['pointerdown','keydown','touchstart','mouseover'].forEach(function(evt){window.addEventListener(evt,load,{once:true,passive:true});});schedule();})();
+</script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script>
+    (function(){
+      var _applied=false;
+      function _isHeroBg(w){var img=w.querySelector('img');if(img&&(img.getAttribute('data-hero-bg')==='true'||img.getAttribute('data-hero-background')==='true'))return true;var p=(w.style.position||'').replace(/\s*!important\s*/g,'').trim();var ww=(w.style.width||'').replace(/\s*!important\s*/g,'').trim();var hh=(w.style.height||'').replace(/\s*!important\s*/g,'').trim();return p==='absolute'&&ww==='100%'&&hh==='100%';}
+      function fixDesktopWrappers(){
+        // No-op: desktop wrapper restoration is handled by ZAPPY_PUBLISHED_ZOOM_WRAPPER_RUNTIME
+        // in script.js (restoreWrapperDimensions). The old inflation logic here was expanding
+        // small wrappers (e.g. 139px logo wrappers) to their parent width, conflicting with
+        // the correct stored dimensions.
+      }
+      function _parsePos(s){var x=50,y=50;try{var m=(s||'').match(/(-?d+(?:.d+)?)%s+(-?d+(?:.d+)?)%/);if(m){x=parseFloat(m[1]);y=parseFloat(m[2]);}}catch(e){}if(!isFinite(x))x=50;if(!isFinite(y))y=50;return{x:Math.max(0,Math.min(100,x)),y:Math.max(0,Math.min(100,y))};}
+      function _coverPct(iA,cA){if(!isFinite(iA)||iA<=0||!isFinite(cA)||cA<=0)return{w:100,h:100};if(iA>=cA)return{w:(iA/cA)*100,h:100};return{w:100,h:(cA/iA)*100};}
+      function applyMobile(){
+        if(_applied)return;_applied=true;
+        document.querySelectorAll('[data-zappy-zoom-wrapper="true"]').forEach(function(w){
+          if(_isHeroBg(w))return;
+          var cw=w.style.getPropertyValue('width');
+          var _sW=parseFloat(w.getAttribute('data-zappy-zoom-wrapper-width'))||0;
+          var _sH=parseFloat(w.getAttribute('data-zappy-zoom-wrapper-height'))||0;
+          if(!cw&&!(_sW>0&&_sH>0))return;
+          if(!w._zappyDesktop)w._zappyDesktop={wStyle:w.getAttribute('style')};
+          var img=w.querySelector('img');
+          if(!img)return;
+          if(!img._zappyDesktop)img._zappyDesktop={src:img.getAttribute('src'),style:img.getAttribute('style')};
+          var mobileZoomStr=img.getAttribute('data-zappy-mobile-zoom');
+          var mobileZoom=parseFloat(mobileZoomStr);
+          var mobileSrc=img.getAttribute('data-zappy-mobile-src');
+          var mobilePos=img.getAttribute('data-zappy-mobile-object-position');
+          var parentOvf=w.parentElement?((w.parentElement.style.overflow||'')+(window.getComputedStyle(w.parentElement).overflow||'')).trim():'';
+          var inConstrainedParent=parentOvf.indexOf('hidden')!==-1||parentOvf.indexOf('clip')!==-1;
+          if(inConstrainedParent){
+            w.style.setProperty('max-width','100%','important');
+          }else{
+            w.style.setProperty('width','100%','important');
+            w.style.setProperty('max-width','100%','important');
+          }
+          if(mobileSrc)img.src=mobileSrc;
+          function _applyZoomCrop(_img,_w,_ePos,_eZoom){
+            var rect=_w.getBoundingClientRect();
+            if(!rect||!rect.width||!rect.height)return;
+            var nW=_img.naturalWidth||0,nH=_img.naturalHeight||0;
+            if(!(nW>0&&nH>0))return;
+            var iA=nW/nH,cA=rect.width/rect.height;
+            var cv=_coverPct(iA,cA);
+            var wP=100,hP=100;
+            if(_eZoom>=1){wP=cv.w*_eZoom;hP=cv.h*_eZoom;}
+            else{var t2=(_eZoom-0.5)/0.5;if(!isFinite(t2))t2=0;t2=Math.max(0,Math.min(1,t2));wP=100+t2*(cv.w-100);hP=100+t2*(cv.h-100);}
+            var p2=_parsePos(_ePos);
+            var lP=(100-wP)*(p2.x/100);
+            var tP=(100-hP)*(p2.y/100);
+            _img.style.setProperty('position','absolute','important');
+            _img.style.setProperty('left',lP+'%','important');
+            _img.style.setProperty('top',tP+'%','important');
+            _img.style.setProperty('width',wP+'%','important');
+            _img.style.setProperty('height',hP+'%','important');
+            _img.style.setProperty('max-width','none','important');
+            _img.style.setProperty('max-height','none','important');
+            _img.style.setProperty('display','block','important');
+            _img.style.setProperty('object-fit',_eZoom<1?'fill':'cover','important');
+            _img.style.setProperty('transform','none','important');
+            _img.style.setProperty('margin','0','important');
+          }
+          if(_sW>0&&_sH>0){
+            var effZoom=(isFinite(mobileZoom)&&mobileZoom>0)?mobileZoom:(parseFloat(img.getAttribute('data-zappy-zoom'))||1);
+            var effPos=mobilePos||img.getAttribute('data-zappy-object-position')||img.style.objectPosition||'50% 50%';
+            w.style.setProperty('overflow','hidden','important');
+            w.style.setProperty('position','relative','important');
+            w.style.setProperty('width','100%','important');
+            w.style.setProperty('max-width','100%','important');
+            if(_sW>0&&_sH>0){w.style.setProperty('padding-bottom','0','important');w.style.setProperty('aspect-ratio',_sW+'/'+_sH,'important');w.style.setProperty('height','auto','important');}
+            _applyZoomCrop(img,w,effPos,effZoom);
+            if(!(img.complete&&img.naturalWidth>0)){
+              (function(_i,_w2,_p,_z){_i.addEventListener('load',function _ol(){_i.removeEventListener('load',_ol);try{_applyZoomCrop(_i,_w2,_p,_z);}catch(e){}});
+              })(img,w,effPos,effZoom);
+            }
+          }else{
+            if(!inConstrainedParent)w.style.setProperty('height','auto','important');
+            img.style.setProperty('position','relative','important');
+            img.style.setProperty('width','100%','important');
+            img.style.setProperty('height','auto','important');
+            img.style.setProperty('max-width','100%','important');
+            img.style.setProperty('max-height',inConstrainedParent?'none':'400px','important');
+            img.style.setProperty('object-fit','cover','important');
+            img.style.setProperty('left','0','important');
+            img.style.setProperty('top','0','important');
+            img.style.setProperty('transform','none','important');
+          }
+        });
+        document.querySelectorAll('img[data-zappy-mobile-src],img[data-zappy-mobile-object-position],img[data-zappy-mobile-zoom]').forEach(function(img){
+          var zw=img.closest('[data-zappy-zoom-wrapper="true"]');
+          if(zw&&!_isHeroBg(zw))return;
+          if(!img._zappyDesktop)img._zappyDesktop={src:img.getAttribute('src'),style:img.getAttribute('style')};
+          var mobileSrc=img.getAttribute('data-zappy-mobile-src');
+          var mobilePos=img.getAttribute('data-zappy-mobile-object-position');
+          var mobileZoom=parseFloat(img.getAttribute('data-zappy-mobile-zoom'));
+          if(mobileSrc)img.src=mobileSrc;
+          if(mobilePos)img.style.setProperty('object-position',mobilePos,'important');
+          if(mobileZoom>1){
+            img.style.setProperty('transform','scale('+mobileZoom+')','important');
+            img.style.setProperty('transform-origin',mobilePos||'50% 50%','important');
+            var p=img.parentElement;
+            if(p)p.style.setProperty('overflow','hidden','important');
+          }
+        });
+      }
+      function revertDesktop(){
+        if(!_applied)return;_applied=false;
+        document.querySelectorAll('[data-zappy-zoom-wrapper="true"]').forEach(function(w){
+          if(w._zappyDesktop&&w._zappyDesktop.wStyle!=null){w.setAttribute('style',w._zappyDesktop.wStyle);}
+          var img=w.querySelector('img');
+          if(img&&img._zappyDesktop){
+            if(img._zappyDesktop.src!=null)img.setAttribute('src',img._zappyDesktop.src);
+            if(img._zappyDesktop.style!=null)img.setAttribute('style',img._zappyDesktop.style);
+            else img.removeAttribute('style');
+          }
+        });
+        document.querySelectorAll('img[data-zappy-mobile-src],img[data-zappy-mobile-object-position],img[data-zappy-mobile-zoom]').forEach(function(img){
+          var zw=img.closest('[data-zappy-zoom-wrapper="true"]');
+          if(zw&&!_isHeroBg(zw))return;
+          if(img._zappyDesktop){
+            if(img._zappyDesktop.src!=null)img.setAttribute('src',img._zappyDesktop.src);
+            if(img._zappyDesktop.style!=null)img.setAttribute('style',img._zappyDesktop.style);
+            else img.removeAttribute('style');
+          }
+        });
+        _fixHeroBgWrappers();
+        fixDesktopWrappers();
+      }
+      function _fixHeroBgWrappers(){var isMob=window.innerWidth<=768;document.querySelectorAll('[data-zappy-zoom-wrapper="true"]').forEach(function(w){if(!_isHeroBg(w))return;w.style.setProperty('position','absolute','important');w.style.setProperty('top','0','important');w.style.setProperty('left','0','important');w.style.setProperty('width','100%','important');w.style.setProperty('height','100%','important');w.style.setProperty('max-width','none','important');w.style.setProperty('overflow','hidden','important');w.setAttribute('data-zappy-zoom-wrapper-width-mode','full');var img=w.querySelector('img');if(img){img.style.setProperty('width','100%','important');img.style.setProperty('height','100%','important');img.style.setProperty('object-fit','cover','important');img.style.setProperty('position','relative','important');img.style.setProperty('top','0','important');img.style.setProperty('left','0','important');img.style.setProperty('max-width','none','important');img.style.setProperty('max-height','none','important');img.style.setProperty('display','block','important');if(isMob){var mSrc=img.getAttribute('data-zappy-mobile-src');var mPos=img.getAttribute('data-zappy-mobile-object-position');var mZoom=parseFloat(img.getAttribute('data-zappy-mobile-zoom'));if(mSrc){if(!img._zappyDesktop)img._zappyDesktop={src:img.getAttribute('src'),style:img.getAttribute('style')};img.src=mSrc;}if(mPos)img.style.setProperty('object-position',mPos,'important');if(mZoom>1){img.style.setProperty('transform','scale('+mZoom+')','important');img.style.setProperty('transform-origin',mPos||'50% 50%','important');}}}});}
+      function init(){
+        _fixHeroBgWrappers();
+        var mq=window.matchMedia('(max-width:768px)');
+        function onChange(e){if(e.matches)applyMobile();else revertDesktop();}
+        if(mq.matches)applyMobile();
+        else fixDesktopWrappers();
+        try{mq.addEventListener('change',onChange);}catch(e){mq.addListener(onChange);}
+      }
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+      else setTimeout(init,50);
+    })();
+    </script>
+<script data-zappy-hero-carousel-js="true">(function(){
+  var V=5;
+  if((window.__zappyCarouselRuntimeVersion||0)>=V){
+    if(window.__zappyHeroCarouselInit)window.__zappyHeroCarouselInit(document);
+    return;
+  }
+  window.__zappyCarouselRuntimeVersion=V;
+  // Legacy inline copies (pre-versioning) guard on this boolean: setting it
+  // makes them skip their own body and delegate to our init instead.
+  window.__zappyHeroCarouselRuntimeLoaded=true;
+  var CONTAINER_SEL='[data-zappy-image-carousel],[data-zappy-hero-carousel]';
+  var SLIDE_SEL='.zappy-carousel-slide,.zappy-hero-carousel-slide,.zappy-img-carousel-slide';
+  function getSlides(c){
+    var direct=Array.prototype.filter.call(c.children,function(ch){
+      return ch.nodeType===1&&ch.matches&&ch.matches(SLIDE_SEL);
+    });
+    if(direct.length)return direct;
+    return Array.prototype.slice.call(c.querySelectorAll(SLIDE_SEL));
+  }
+  function cleanupSlideImages(slide){
+    if(!slide||!slide.querySelectorAll)return null;
+    var imgs=Array.prototype.slice.call(slide.querySelectorAll('img'));
+    if(!imgs.length)return null;
+    var canonical=slide.querySelector('img[data-element-id]')||imgs[0];
+    imgs.forEach(function(img){
+      if(img===canonical)return;
+      var parent=img.parentElement;
+      try{img.remove();}catch(e){try{if(img.parentNode)img.parentNode.removeChild(img);}catch(e2){}}
+      if(parent&&parent!==slide&&parent.getAttribute&&
+         parent.getAttribute('data-zappy-zoom-wrapper')==='true'&&!parent.querySelector('img')){
+        try{parent.remove();}catch(e3){}
+      }
+    });
+    return canonical;
+  }
+  function activeIndexOf(slides){
+    for(var i=0;i<slides.length;i++){
+      if(slides[i].classList.contains('is-active'))return i;
+    }
+    return 0;
+  }
+  function applyResponsiveImages(c){
+    if(!c)return;
+    var mobile=window.matchMedia('(max-width:768px)').matches;
+    getSlides(c).forEach(function(slide){
+      var img=cleanupSlideImages(slide);
+      if(!img)return;
+      var mSrc=img.getAttribute('data-zappy-mobile-src');
+      var mPos=img.getAttribute('data-zappy-mobile-object-position');
+      var desktopPos=img.getAttribute('data-zappy-object-position')||'50% 50%';
+      if(mobile){
+        if(mSrc){
+          if(!img.getAttribute('data-zappy-original-src')){
+            var knownDesktop=(img._zappyDesktop&&img._zappyDesktop.src)||
+              img.getAttribute('data-zappy-desktop-src')||
+              img.getAttribute('src')||'';
+            img.setAttribute('data-zappy-original-src',knownDesktop);
+          }
+          if(img.getAttribute('src')!==mSrc)img.setAttribute('src',mSrc);
+        }
+        if(mPos)img.style.setProperty('object-position',mPos,'important');
+      }else{
+        var original=img.getAttribute('data-zappy-original-src')||
+          (img._zappyDesktop&&img._zappyDesktop.src)||
+          img.getAttribute('data-zappy-desktop-src');
+        if(original&&img.getAttribute('src')!==original)img.setAttribute('src',original);
+        img.removeAttribute('data-zappy-original-src');
+        img.style.setProperty('object-position',desktopPos,'important');
+      }
+      var link=slide.querySelector&&slide.querySelector(':scope > a.zappy-carousel-slide-link');
+      if(link){
+        var desktopAction=link.getAttribute('data-zappy-desktop-click-action');
+        var desktopHref=link.getAttribute('data-zappy-desktop-href');
+        if(!desktopAction&&!desktopHref&&link.getAttribute('href')){
+          desktopHref=link.getAttribute('href');
+          desktopAction='link';
+          link.setAttribute('data-zappy-desktop-click-action','link');
+          link.setAttribute('data-zappy-desktop-href',desktopHref);
+          if(link.getAttribute('target')==='_blank')link.setAttribute('data-zappy-desktop-target','_blank');
+        }
+        var mobileAction=link.getAttribute('data-zappy-mobile-click-action');
+        var useMobileOverride=mobile&&(mobileAction==='link'||mobileAction==='none');
+        var href=useMobileOverride
+          ?(mobileAction==='link'?link.getAttribute('data-zappy-mobile-href'):'')
+          :(desktopAction==='none'?'':desktopHref);
+        var target=useMobileOverride
+          ?link.getAttribute('data-zappy-mobile-target')
+          :link.getAttribute('data-zappy-desktop-target');
+        if(href){
+          link.setAttribute('href',href);
+          link.setAttribute('data-zappy-click-action','link');
+          link.style.setProperty('pointer-events','auto');
+          if(target==='_blank'){
+            link.setAttribute('target','_blank');
+            link.setAttribute('rel','noopener noreferrer');
+          }else{
+            link.removeAttribute('target');
+            link.removeAttribute('rel');
+          }
+        }else{
+          link.removeAttribute('href');
+          link.removeAttribute('target');
+          link.removeAttribute('rel');
+          link.setAttribute('data-zappy-click-action','none');
+          link.style.setProperty('pointer-events','none');
+        }
+      }
+    });
+  }
+  function show(c,idx){
+    var slides=getSlides(c);
+    if(!slides.length)return;
+    if(idx<0)idx=0;
+    if(idx>=slides.length)idx=slides.length-1;
+    c.__zappyActiveIndex=idx;
+    slides.forEach(function(slide,i){
+      var active=i===idx;
+      slide.classList.toggle('is-active',active);
+      slide.style.setProperty('opacity',active?'1':'0','important');
+      // Only the active slide may receive clicks (per-slide links).
+      // Legacy bg-div hero slides sit under aria-hidden containers, so the
+      // pointer-events toggle is harmless there too.
+      slide.style.setProperty('pointer-events',active?'auto':'none','important');
+      slide.style.setProperty('z-index',active?'1':'0','important');
+    });
+  }
+  function isPaused(c){
+    if(c&&c.__zappyCarouselPaused)return true;
+    if(window.__zappyCarouselHoldAll)return true;
+    if(document.hidden)return true;
+    // Editor edit-mode: never auto-advance while the user is editing.
+    if(document.body&&document.body.classList&&document.body.classList.contains('zappy-edit-mode'))return true;
+    return false;
+  }
+  function stopTimer(c){
+    if(c.__zappyHeroCarouselTimer){
+      clearInterval(c.__zappyHeroCarouselTimer);
+      c.__zappyHeroCarouselTimer=null;
+    }
+  }
+  function startTimer(c){
+    stopTimer(c);
+    var iv=parseInt(c.getAttribute('data-interval'),10)||3000;
+    if(iv<500)iv=500;
+    c.__zappyHeroCarouselTimer=setInterval(function(){
+      if(!document.documentElement.contains(c)){stopTimer(c);return;}
+      if(isPaused(c))return;
+      var slides=getSlides(c);
+      if(slides.length<2)return;
+      var i=typeof c.__zappyActiveIndex==='number'?c.__zappyActiveIndex:activeIndexOf(slides);
+      show(c,(i+1)%slides.length);
+    },iv);
+  }
+  function initOne(c){
+    if(c.__zappyInit&&c.__zappyCarouselV5)return;
+    // Take over containers initialized by an OLD runtime copy.
+    if(c.__zappyInit&&!c.__zappyCarouselV5)stopTimer(c);
+    c.__zappyInit=true;
+    c.__zappyCarouselV5=true;
+    var slides=getSlides(c);
+    if(!slides.length)return;
+    applyResponsiveImages(c);
+    show(c,activeIndexOf(slides));
+    startTimer(c);
+  }
+  function init(root){
+    var scope=root&&root.querySelectorAll?root:document;
+    var seen=[];
+    scope.querySelectorAll(CONTAINER_SEL).forEach(function(c){
+      if(seen.indexOf(c)===-1){seen.push(c);initOne(c);}
+    });
+    if(scope!==document&&scope.matches&&scope.matches(CONTAINER_SEL))initOne(scope);
+  }
+  // ---- Editor control API ----
+  window.__zappyCarousel={
+    version:V,
+    init:init,
+    getSlides:getSlides,
+    applyResponsiveImages:applyResponsiveImages,
+    setActive:function(c,idx){if(!c)return;show(c,idx);},
+    pause:function(c){if(c)c.__zappyCarouselPaused=true;},
+    resume:function(c){if(c)c.__zappyCarouselPaused=false;},
+    refresh:function(c){
+      if(!c)return;
+      c.__zappyInit=false;c.__zappyCarouselV5=false;
+      stopTimer(c);
+      initOne(c);
+    }
+  };
+  window.__zappyHeroCarouselInit=init;
+  function start(){init(document);}
+  if(document.readyState!=='loading'){start();}else{document.addEventListener('DOMContentLoaded',start);}
+  var responsiveMq=window.matchMedia('(max-width:768px)');
+  function refreshResponsiveImages(){
+    document.querySelectorAll(CONTAINER_SEL).forEach(applyResponsiveImages);
+  }
+  if(responsiveMq.addEventListener)responsiveMq.addEventListener('change',refreshResponsiveImages);
+  else if(responsiveMq.addListener)responsiveMq.addListener(refreshResponsiveImages);
+  if(window.MutationObserver&&!window.__zappyHeroCarouselObserver){
+    var observer=new MutationObserver(function(records){
+      records.forEach(function(record){
+        Array.prototype.slice.call(record.addedNodes||[]).forEach(function(node){
+          if(!node||node.nodeType!==1)return;
+          if(node.matches&&node.matches(CONTAINER_SEL)){init(node.parentNode||document);}
+          else if(node.querySelector&&node.querySelector(CONTAINER_SEL)){init(node);}
+        });
+      });
+    });
+    function observe(){if(document.body)observer.observe(document.body,{childList:true,subtree:true});}
+    window.__zappyHeroCarouselObserver=observer;
+    if(document.readyState!=='loading'){observe();}else{document.addEventListener('DOMContentLoaded',observe);}
+  }
+})();</script></body></html>
